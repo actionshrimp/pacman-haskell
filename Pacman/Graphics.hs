@@ -1,8 +1,9 @@
-module Pacman.Graphics (renderScene) where
+module Pacman.Graphics (render, setOptions) where
 
 import Graphics.Rendering.OpenGL
 import Graphics.Rendering.OpenGL.GL.CoordTrans
 import Graphics.Rendering.OpenGL.GLU.Matrix (ortho2D)
+import Graphics.UI.GLUT
 
 import Data.IORef
 import qualified Data.Time.Clock as Clock
@@ -12,10 +13,19 @@ import qualified Pacman.Actors.Pacman as Pacman
 
 import Pacman.Graphics.Actors
 
+setOptions :: IO()
+setOptions = do
+    initialDisplayMode $= [DoubleBuffered, WithSamplesPerPixel 4] --AA
+
+render :: IORef Scene.Scene -> IO ()
+render sceneRef = do
+    clear [ColorBuffer]
+    renderScene sceneRef
+    swapBuffers
+
 renderScene :: IORef Scene.Scene -> IO ()
 renderScene sceneRef = do
     scene <- readIORef sceneRef
-    clear [ColorBuffer]
 
     setProjection (Scene.width scene) (Scene.height scene)
     startDrawMode

@@ -7,52 +7,42 @@ import Pacman.Actors.Base
 import qualified Pacman.Actors.Scene as Scene
 import qualified Pacman.Actors.Pacman as Pacman
 
-import Pacman.Graphics
-
-scene = Scene.Scene {
-    Scene.width = 800, 
-    Scene.height = 600,
-    Scene.pacman = Pacman.Pacman {
-        Pacman.position = (300, 300),
-        Pacman.mouthAngle = 0,
-        Pacman.mouthAction = Pacman.Opening,
-        Pacman.direction = DRight,
-        Pacman.queuedDirection = Nothing
-    },
-    Scene.ghosts = []}
+import qualified Pacman.Graphics as Graphics
 
 main :: IO ()
 main = do
-    sceneRef <- newIORef scene
-    initializeUI sceneRef
-    mainLoop
+    createGameWindow (Scene.width Scene.initialScene) (Scene.height Scene.initialScene)
 
-initializeUI :: IORef Scene.Scene -> IO ()
-initializeUI sceneRef = do
-    scene <- readIORef sceneRef
-    setWindowOptions (Scene.width scene) (Scene.height scene)
-    (progname, _) <- getArgsAndInitialize
-    createWindow progname
-    displayCallback $= (render sceneRef)
+    sceneRef <- newIORef Scene.initialScene
+    displayCallback $= (Graphics.render sceneRef)
+
     timeRef <- newIORef 0
     idleCallback $= Just (update timeRef sceneRef)
+
+    mainLoop
+
+createGameWindow :: Int -> Int -> IO ()
+createGameWindow windowWidth windowHeight = do
+    setWindowOptions windowWidth windowHeight
+    (progname, _) <- getArgsAndInitialize
+    createWindow progname
+    return ()
 
 setWindowOptions :: Int -> Int -> IO ()
 setWindowOptions width height = do
     initialWindowSize $= Size (fromIntegral width) (fromIntegral height)
-    initialDisplayMode $= [DoubleBuffered, WithSamplesPerPixel 4] --AA
-
-render :: IORef Scene.Scene -> IO ()
-render sceneRef = do
-    renderScene sceneRef
-    swapBuffers
+    Graphics.setOptions
 
 update :: IORef Int -> IORef Scene.Scene -> IO ()
 update timeRef sceneRef = do
+
     prevT <- readIORef timeRef
     newT <- get elapsedTime
-    let dt = (fromIntegral (newT - prevT)) / 1000.0
+    modifyIORef timeRef (\_ -> newT)
+
+    let dt = (fromIntegral (newT - prevT)) / 1000.0 where
+
     scene <- readIORef sceneRef
     modifyIORef sceneRef (\_ -> Scene.update scene dt)
-    modifyIORef timeRef (\_ -> newT)
+
     postRedisplay Nothing
