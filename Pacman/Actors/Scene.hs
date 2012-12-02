@@ -29,5 +29,22 @@ initialScene = Scene {
         Pacman.direction = DRight,
         Pacman.queuedDirection = Nothing
     },
-    ghosts = []}
+    ghosts = [
+        Ghost.Ghost {
+            Ghost.position = (400, 400),
+            Ghost.direction = DRight
+        },
+        Ghost.Ghost {
+            Ghost.position = (500, 400),
+            Ghost.direction = DRight
+        },
+        Ghost.Ghost {
+            Ghost.position = (400, 300),
+            Ghost.direction = DRight
+        },
+        Ghost.Ghost {
+            Ghost.position = (100, 200),
+            Ghost.direction = DRight
+        }
+    ]}
 
