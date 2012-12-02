@@ -1,6 +1,14 @@
-module Pacman.Graphics.Actors (renderPacman) where
+module Pacman.Graphics.Actors (renderScene) where
 
 import Graphics.Rendering.OpenGL
+
+import qualified Pacman.Actors.Scene as Scene
+import qualified Pacman.Actors.Pacman as Pacman
+
+renderScene :: Scene.Scene -> IO ()
+renderScene scene = do
+    let pacman = Scene.pacman scene
+    renderPacman (Pacman.position pacman) (Pacman.mouthAngle pacman) 
 
 renderPacman :: (Float, Float) -> Float -> IO ()
 renderPacman (x, y) mouthAngle = do
