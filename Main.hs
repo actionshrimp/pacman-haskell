@@ -14,7 +14,8 @@ scene = Scene.Scene {
     Scene.height = 600,
     Scene.pacman = Pacman.Pacman {
         Pacman.position = (300, 300),
-        Pacman.mouthAngle = pi / 8,
+        Pacman.mouthAngle = 0,
+        Pacman.mouthAction = Pacman.Opening,
         Pacman.direction = DRight,
         Pacman.queuedDirection = Nothing
     },
@@ -33,7 +34,8 @@ initializeUI sceneRef = do
     (progname, _) <- getArgsAndInitialize
     createWindow progname
     displayCallback $= (render sceneRef)
-    idleCallback $= Just (update sceneRef)
+    timeRef <- newIORef 0
+    idleCallback $= Just (update timeRef sceneRef)
 
 setWindowOptions :: Int -> Int -> IO ()
 setWindowOptions width height = do
@@ -45,9 +47,12 @@ render sceneRef = do
     renderScene sceneRef
     swapBuffers
 
-update :: IORef Scene.Scene -> IO ()
-update sceneRef = do
-    dt <- get elapsedTime
+update :: IORef Int -> IORef Scene.Scene -> IO ()
+update timeRef sceneRef = do
+    prevT <- readIORef timeRef
+    newT <- get elapsedTime
+    let dt = (fromIntegral (newT - prevT)) / 1000.0
     scene <- readIORef sceneRef
     modifyIORef sceneRef (\_ -> Scene.update scene dt)
+    modifyIORef timeRef (\_ -> newT)
     postRedisplay Nothing

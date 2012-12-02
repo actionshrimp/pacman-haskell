@@ -9,7 +9,7 @@ data Scene = Scene { width :: Int,
                      ghosts :: [Ghost.Ghost]
                    }
 
-update :: Scene -> Int -> Scene
+update :: Scene -> Float -> Scene
 update scene dt = Scene {
                         width = width scene,
                         height = height scene,
