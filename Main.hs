@@ -2,8 +2,11 @@ module Main(main) where
 
 import Data.IORef
 
+import Pacman.Actors.Base
+import Pacman.Actors.Scene
+import Pacman.Actors.Pacman
+
 import Pacman.Graphics
-import Pacman.Actors
 
 scene = Scene {
     width = 800, 
@@ -11,10 +14,10 @@ scene = Scene {
     pacman = Pacman {
         position = (300, 300),
         mouthAngle = pi / 8,
-        direction = Right,
+        direction = DRight,
         queuedDirection = Nothing
     },
-    ghosts = []
+    ghosts = []}
 
 main :: IO ()
 main = do
