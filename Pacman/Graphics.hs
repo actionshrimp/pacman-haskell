@@ -1,4 +1,4 @@
-module Pacman.Graphics (render, setOptions) where
+module Pacman.Graphics (render, setWindowOptions, setDrawingOptions) where
 
 import Graphics.Rendering.OpenGL
 import Graphics.Rendering.OpenGL.GL.CoordTrans
@@ -11,9 +11,17 @@ import qualified Pacman.Actors.Scene as Scene
 
 import Pacman.Graphics.Actors
 
-setOptions :: IO()
-setOptions = do
-    initialDisplayMode $= [DoubleBuffered, WithSamplesPerPixel 4] --AA
+setWindowOptions :: IO()
+setWindowOptions = do
+    initialDisplayMode $= [DoubleBuffered, WithSamplesPerPixel 12] --AA
+
+setDrawingOptions :: IO ()
+setDrawingOptions = do
+    depthFunc $= Nothing
+    --blend $= Enabled
+    --blendEquation $= FuncAdd
+    --blendFunc $= (SrcAlpha, OneMinusSrcAlpha)
+    --lineSmooth $= Enabled
 
 render :: IORef Scene.Scene -> IO ()
 render sceneRef = do

@@ -12,12 +12,11 @@ import qualified Pacman.Graphics as Graphics
 main :: IO ()
 main = do
     createGameWindow (Scene.width Scene.initialScene) (Scene.height Scene.initialScene)
+    Graphics.setDrawingOptions
 
     sceneRef <- newIORef Scene.initialScene
     displayCallback $= (Graphics.render sceneRef)
-
-    timeRef <- newIORef 0
-    idleCallback $= Just (update timeRef sceneRef)
+    idleCallback $= Just (update sceneRef)
 
     mainLoop
 
@@ -31,18 +30,15 @@ createGameWindow windowWidth windowHeight = do
 setWindowOptions :: Int -> Int -> IO ()
 setWindowOptions width height = do
     initialWindowSize $= Size (fromIntegral width) (fromIntegral height)
-    Graphics.setOptions
+    Graphics.setWindowOptions
 
-update :: IORef Int -> IORef Scene.Scene -> IO ()
-update timeRef sceneRef = do
-
-    prevT <- readIORef timeRef
-    newT <- get elapsedTime
-    modifyIORef timeRef (\_ -> newT)
-
-    let dt = (fromIntegral (newT - prevT)) / 1000.0 where
-
+update :: IORef Scene.Scene -> IO ()
+update sceneRef = do
     scene <- readIORef sceneRef
+
+    newTime <- get elapsedTime
+    let dt = (fromIntegral newTime / 1000.0) - (Scene.elapsedTime scene)
+
     modifyIORef sceneRef (\_ -> Scene.update scene dt)
 
     postRedisplay Nothing

@@ -23,7 +23,7 @@ update pacman dt = Pacman {
                         dt
 
 --Angular velocity for the mouth
-mouthW = 3
+mouthW = 5
 maxMouthAngle = pi / 4
 
 updateMouth :: Float -> MouthAction -> Float -> (Float, MouthAction)

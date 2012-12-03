@@ -5,7 +5,8 @@ import Pacman.Actors.Base
 import qualified Pacman.Actors.Pacman as Pacman
 import qualified Pacman.Actors.Ghost as Ghost
 
-data Scene = Scene { width :: Int,
+data Scene = Scene { elapsedTime :: Float,
+                     width :: Int,
                      height :: Int,
                      pacman :: Pacman.Pacman,
                      ghosts :: [Ghost.Ghost]
@@ -13,6 +14,7 @@ data Scene = Scene { width :: Int,
 
 update :: Scene -> Float -> Scene
 update scene dt = Scene {
+                        elapsedTime = elapsedTime scene + dt,
                         width = width scene,
                         height = height scene,
                         pacman = Pacman.update (pacman scene) dt,
@@ -20,6 +22,7 @@ update scene dt = Scene {
                      }
 
 initialScene = Scene {
+    elapsedTime = 0,
     width = 800, 
     height = 600,
     pacman = Pacman.Pacman {
