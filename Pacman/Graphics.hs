@@ -1,8 +1,6 @@
 module Pacman.Graphics (render, setWindowOptions, setDrawingOptions) where
 
 import Graphics.Rendering.OpenGL
-import Graphics.Rendering.OpenGL.GL.CoordTrans
-import Graphics.Rendering.OpenGL.GLU.Matrix (ortho2D)
 import Graphics.UI.GLUT
 
 import Data.IORef
@@ -12,11 +10,11 @@ import qualified Pacman.Actors.Scene as Scene
 import Pacman.Graphics.Actors
 
 setWindowOptions :: IO()
-setWindowOptions = do
+setWindowOptions =
     initialDisplayMode $= [DoubleBuffered, WithSamplesPerPixel 12] --AA
 
 setDrawingOptions :: IO ()
-setDrawingOptions = do
+setDrawingOptions =
     depthFunc $= Nothing
     --blend $= Enabled
     --blendEquation $= FuncAdd
@@ -44,5 +42,5 @@ setProjection width height = do
 
 startDrawMode :: IO ()
 startDrawMode = do
-    matrixMode $= (Modelview 0)
+    matrixMode $= Modelview 0
     loadIdentity

@@ -35,19 +35,23 @@ initialScene = Scene {
     ghosts = [
         Ghost.Ghost {
             Ghost.position = (400, 400),
-            Ghost.direction = DRight
+            Ghost.direction = DRight,
+            Ghost.wobbleParam = 0
         },
         Ghost.Ghost {
             Ghost.position = (500, 400),
-            Ghost.direction = DRight
+            Ghost.direction = DRight,
+            Ghost.wobbleParam = 0
         },
         Ghost.Ghost {
             Ghost.position = (400, 300),
-            Ghost.direction = DRight
+            Ghost.direction = DRight,
+            Ghost.wobbleParam = 0
         },
         Ghost.Ghost {
             Ghost.position = (100, 200),
-            Ghost.direction = DRight
+            Ghost.direction = DRight,
+            Ghost.wobbleParam = 0
         }
     ]}
 

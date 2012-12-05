@@ -3,9 +3,7 @@ module Main(main) where
 import Data.IORef
 import Graphics.UI.GLUT
 
-import Pacman.Actors.Base
 import qualified Pacman.Actors.Scene as Scene
-import qualified Pacman.Actors.Pacman as Pacman
 
 import qualified Pacman.Graphics as Graphics
 
@@ -15,7 +13,7 @@ main = do
     Graphics.setDrawingOptions
 
     sceneRef <- newIORef Scene.initialScene
-    displayCallback $= (Graphics.render sceneRef)
+    displayCallback $= Graphics.render sceneRef
     idleCallback $= Just (update sceneRef)
 
     mainLoop
