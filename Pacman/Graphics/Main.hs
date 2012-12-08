@@ -1,4 +1,4 @@
-module Pacman.Graphics (render, setWindowOptions, setDrawingOptions) where
+module Pacman.Graphics.Main (render, setWindowOptions, setDrawingOptions) where
 
 import Graphics.Rendering.OpenGL
 import Graphics.UI.GLUT
@@ -7,7 +7,8 @@ import Data.IORef
 
 import qualified Pacman.Actors.Scene as Scene
 
-import Pacman.Graphics.Actors
+import Pacman.Graphics.Pacman
+import Pacman.Graphics.Ghost
 
 setWindowOptions :: IO()
 setWindowOptions =
@@ -44,3 +45,9 @@ startDrawMode :: IO ()
 startDrawMode = do
     matrixMode $= Modelview 0
     loadIdentity
+
+renderScene :: Scene.Scene -> IO ()
+renderScene scene = do
+    renderPacman (Scene.pacman scene)
+    mapM_ (\(i, ghost) -> renderGhost ghost i) (zip [1..] (Scene.ghosts scene))
+

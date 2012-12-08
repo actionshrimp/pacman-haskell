@@ -4,8 +4,7 @@ import Data.IORef
 import Graphics.UI.GLUT
 
 import qualified Pacman.Actors.Scene as Scene
-
-import qualified Pacman.Graphics as Graphics
+import qualified Pacman.Graphics.Main as Graphics
 
 main :: IO ()
 main = do
