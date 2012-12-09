@@ -1,24 +1,22 @@
 module Pacman.Actors.Scene (Scene(..), initialScene, update) where
 
-import Pacman.Actors.Base
+import Pacman.Util.Types.Vec2
+import Pacman.Util.Types.Direction
 
-import qualified Pacman.Actors.Pacman as Pacman
-import qualified Pacman.Actors.Ghost as Ghost
+import Pacman.Actors.Types.Scene
+import qualified Pacman.Actors.Types.Pacman as Pacman
+import qualified Pacman.Actors.Types.Ghost as Ghost
 
-data Scene = Scene { elapsedTime :: Float,
-                     width :: Int,
-                     height :: Int,
-                     pacman :: Pacman.Pacman,
-                     ghosts :: [Ghost.Ghost]
-                   }
+import qualified Pacman.Actors.Pacman as P
+import qualified Pacman.Actors.Ghost as G
 
 update :: Scene -> Float -> Scene
 update scene dt = Scene {
                         elapsedTime = elapsedTime scene + dt,
                         width = width scene,
                         height = height scene,
-                        pacman = Pacman.update (pacman scene) dt,
-                        ghosts = map (\x -> Ghost.update x dt) (ghosts scene)
+                        pacman = P.update (pacman scene) dt,
+                        ghosts = map (\x -> G.update x scene dt) (ghosts scene)
                      }
 
 initialScene = Scene {
@@ -26,7 +24,7 @@ initialScene = Scene {
     width = 800, 
     height = 600,
     pacman = Pacman.Pacman {
-        Pacman.position = (300, 300),
+        Pacman.position = Vec2 {x = 300, y = 300},
         Pacman.mouthAngle = 0,
         Pacman.mouthAction = Pacman.Opening,
         Pacman.direction = DRight,
@@ -34,24 +32,28 @@ initialScene = Scene {
     },
     ghosts = [
         Ghost.Ghost {
-            Ghost.position = (400, 400),
+            Ghost.position = Vec2 {x = 400, y = 400},
             Ghost.direction = DRight,
-            Ghost.wobbleParam = 0
+            Ghost.wobbleParam = 0,
+            Ghost.eyePosition = Vec2 {x = 0, y = 0}
         },
         Ghost.Ghost {
-            Ghost.position = (500, 400),
+            Ghost.position = Vec2 {x = 500, y = 400},
             Ghost.direction = DRight,
-            Ghost.wobbleParam = 0
+            Ghost.wobbleParam = 0,
+            Ghost.eyePosition = Vec2 {x = 0, y = 0}
         },
         Ghost.Ghost {
-            Ghost.position = (400, 300),
+            Ghost.position = Vec2 {x = 400, y = 300},
             Ghost.direction = DRight,
-            Ghost.wobbleParam = 0
+            Ghost.wobbleParam = 0,
+            Ghost.eyePosition = Vec2 {x = 0, y = 0}
         },
         Ghost.Ghost {
-            Ghost.position = (100, 200),
+            Ghost.position = Vec2 {x = 100, y = 200},
             Ghost.direction = DRight,
-            Ghost.wobbleParam = 0
+            Ghost.wobbleParam = 0,
+            Ghost.eyePosition = Vec2 {x = 0, y = 0}
         }
     ]}
 

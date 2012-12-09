@@ -3,24 +3,26 @@ module Pacman.Graphics.Ghost (renderGhost) where
 import Graphics.Rendering.OpenGL
 
 import Pacman.Graphics.Base
-import qualified Pacman.Actors.Ghost as Ghost
+
+import qualified Pacman.Util.Types.Vec2 as Vec2
+import qualified Pacman.Actors.Types.Ghost as Ghost
 
 renderGhost :: Ghost.Ghost -> Int -> IO ()
 renderGhost ghost i = do
     let
-        (x, y) = Ghost.position ghost
+        Vec2.Vec2 {Vec2.x = x, Vec2.y = y} = Ghost.position ghost
 
         r = 20
         fanPoints = (x, y) : map (\a -> (x + r * cos a, y + r * sin a)) [0, pi/64..pi]
         fanVertices = map pointToVertex fanPoints
 
-        recPoints = [(x - r, y), (x - r, y-(r/2)), (x+r, y), (x+r, y-(r/2))]
+        recPoints = [(x - r, y), (x - r, y-(3*r/4)), (x+r, y), (x+r, y-(3*r/4))]
         recVertices = map pointToVertex recPoints
 
         frillXSamples = [(x - r), (x - r)+(2*r / 20)..(x+r)]
-        frillBaseline = zip frillXSamples (repeat (y-(r/2)))
+        frillBaseline = zip frillXSamples (repeat (y-(3*r/4)))
 
-        frillWave t u = y - (r/2) - (r/2) * sin ((pi * u / (2 * r / 3)) - (4 * t)) ^ (2 :: Integer)
+        frillWave t u = y - (3*r/4) - (r/4) * sin ((pi * u / (2 * r / 3)) - (4 * t)) ^ (2 :: Integer)
 
         frillPeaks = zip frillXSamples (map (frillWave (pi * Ghost.wobbleParam ghost)) frillXSamples)
         frillPeaksFade = zip frillXSamples (map (frillWave (negate pi * Ghost.wobbleParam ghost)) frillXSamples)
@@ -34,8 +36,8 @@ renderGhost ghost i = do
         outlineR = r / 2.2
         whiteR = r / 2.5
         spaceX = r / 2.9
-        offX = r / 10 
-        offY = r / 3
+        offX = (Vec2.x . Ghost.eyePosition $ ghost) * r / 10 
+        offY = (r / 6) + (Vec2.y . Ghost.eyePosition $ ghost) * r / 6
         
         lEyeOutline = (x - spaceX + offX, y + offY) : map (\a -> ((x - spaceX + offX) + (7 * outlineR / 8) * cos a, y + offY + outlineR * sin a)) [0, pi/16..2*pi]
         rEyeOutline = map (\a -> ((x + spaceX + offX) + (7 * outlineR / 8) * cos a, y + offY + outlineR * sin a)) [0, pi/16..2*pi]
@@ -48,9 +50,10 @@ renderGhost ghost i = do
         rEyeWhiteVertices = map pointToVertex rEyeWhite
 
         pupilR = r / 6
-        pupilOffX = r / 4
-        lPupil = map (\a -> ((x - spaceX + pupilOffX) + pupilR * cos a, y + offY + pupilR * sin a)) [0, pi/16..2*pi]
-        rPupil = map (\a -> ((x + spaceX + pupilOffX) + pupilR * cos a, y + offY + pupilR * sin a)) [0, pi/16..2*pi]
+        pupilOffX = (Vec2.x . Ghost.eyePosition $ ghost) * r / 4
+        pupilOffY = (Vec2.y . Ghost.eyePosition $ ghost) * r / 5
+        lPupil = map (\a -> ((x - spaceX + pupilOffX) + pupilR * cos a, y + offY + pupilOffY + pupilR * sin a)) [0, pi/16..2*pi]
+        rPupil = map (\a -> ((x + spaceX + pupilOffX) + pupilR * cos a, y + offY + pupilOffY + pupilR * sin a)) [0, pi/16..2*pi]
         lPupilVertices = map pointToVertex lPupil
         rPupilVertices = map pointToVertex rPupil
 

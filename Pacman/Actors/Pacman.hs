@@ -1,13 +1,9 @@
 module Pacman.Actors.Pacman (MouthAction(..), Pacman(..), update) where
 
-import Pacman.Actors.Base
+import Pacman.Util.Types.Vec2
+import Pacman.Util.Types.Direction
 
-data MouthAction = Opening | Closing
-data Pacman = Pacman { position :: Vec2,
-                       mouthAngle :: Float,
-                       mouthAction :: MouthAction,
-                       direction :: Direction,
-                       queuedDirection :: Maybe Direction }
+import Pacman.Actors.Types.Pacman
 
 update :: Pacman -> Float -> Pacman
 update pacman dt = Pacman {
@@ -23,7 +19,10 @@ update pacman dt = Pacman {
                         dt
 
 --Angular velocity for the mouth
+mouthW :: Float
 mouthW = 5
+
+maxMouthAngle :: Float
 maxMouthAngle = pi / 4
 
 updateMouth :: Float -> MouthAction -> Float -> (Float, MouthAction)
