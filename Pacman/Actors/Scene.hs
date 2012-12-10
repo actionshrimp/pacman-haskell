@@ -1,4 +1,4 @@
-module Pacman.Actors.Scene (Scene(..), initialScene, update) where
+module Pacman.Actors.Scene (Scene(..), loadScene, update) where
 
 import Pacman.Util.Types.Vec2
 import Pacman.Util.Types.Direction
@@ -7,22 +7,27 @@ import Pacman.Actors.Types.Scene
 import qualified Pacman.Actors.Types.Pacman as Pacman
 import qualified Pacman.Actors.Types.Ghost as Ghost
 
+import Pacman.Actors.Level
 import qualified Pacman.Actors.Pacman as P
 import qualified Pacman.Actors.Ghost as G
 
 update :: Scene -> Float -> Scene
 update scene dt = Scene {
                         elapsedTime = elapsedTime scene + dt,
+                        level = level scene,
                         width = width scene,
                         height = height scene,
                         pacman = P.update (pacman scene) dt,
                         ghosts = map (\x -> G.update x scene dt) (ghosts scene)
                      }
 
-initialScene = Scene {
+
+loadScene :: [String] -> Scene
+loadScene levelData = Scene {
     elapsedTime = 0,
     width = 800, 
     height = 600,
+    level = loadLevel levelData,
     pacman = Pacman.Pacman {
         Pacman.position = Vec2 {x = 300, y = 300},
         Pacman.mouthAngle = 0,
@@ -56,4 +61,3 @@ initialScene = Scene {
             Ghost.eyePosition = Vec2 {x = 0, y = 0}
         }
     ]}
-

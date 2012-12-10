@@ -6,12 +6,16 @@ import Graphics.UI.GLUT
 import qualified Pacman.Actors.Scene as Scene
 import qualified Pacman.Graphics.Main as Graphics
 
+import qualified Pacman.Actors.Level as Level
+
 main :: IO ()
 main = do
-    createGameWindow (Scene.width Scene.initialScene) (Scene.height Scene.initialScene)
+    sceneData <- Level.loadLevelData "01"
+    let scene = Scene.loadScene sceneData
+    createGameWindow (Scene.width scene) (Scene.height scene)
     Graphics.setDrawingOptions
 
-    sceneRef <- newIORef Scene.initialScene
+    sceneRef <- newIORef scene
     displayCallback $= Graphics.render sceneRef
     idleCallback $= Just (update sceneRef)
 
