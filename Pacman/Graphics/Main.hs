@@ -9,6 +9,7 @@ import qualified Pacman.Actors.Scene as Scene
 
 import Pacman.Graphics.Pacman
 import Pacman.Graphics.Ghost
+import Pacman.Graphics.Level
 
 setWindowOptions :: IO()
 setWindowOptions =
@@ -48,6 +49,6 @@ startDrawMode = do
 
 renderScene :: Scene.Scene -> IO ()
 renderScene scene = do
+    renderLevel (Scene.level scene)
     renderPacman (Scene.pacman scene)
     mapM_ (\(i, ghost) -> renderGhost ghost i) (zip [1..] (Scene.ghosts scene))
-

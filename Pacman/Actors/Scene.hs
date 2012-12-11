@@ -25,8 +25,8 @@ update scene dt = Scene {
 loadScene :: [String] -> Scene
 loadScene levelData = Scene {
     elapsedTime = 0,
-    width = 800, 
-    height = 600,
+    width = levelItemSize * length (head levelData),
+    height = levelItemSize * length levelData,
     level = loadLevel levelData,
     pacman = Pacman.Pacman {
         Pacman.position = Vec2 {x = 300, y = 300},

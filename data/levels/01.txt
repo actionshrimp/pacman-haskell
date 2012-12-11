@@ -8,15 +8,15 @@ x.xxxx.xx.xxxxxxxx.xx.xxxx.x
 x.xxxx.xx.xxxxxxxx.xx.xxxx.x
 x......xx....xx....xx......x
 xxxxxx.xxxxx xx xxxxx.xxxxxx
-     x.xxxxx xx xxxxx.x     
-     x.xx          xx.x     
-     x.xx ---++--- xx.x     
+xxxxxx.xxxxx xx xxxxx.xxxxxx
+    xx.xx          xx.xx    
+xxxxxx.xx ---++--- xx.xxxxxx
 xxxxxx.xx -gggggg- xx.xxxxxx
       .   -gggggg-   .      
 xxxxxx.xx -gggggg- xx.xxxxxx
-     x.xx -------- xx.x     
-     x.xx          xx.x     
-     x.xx xxxxxxxx xx.x     
+xxxxxx.xx -------- xx.xxxxxx
+    xx.xx          xx.xx    
+xxxxxx.xx xxxxxxxx xx.xxxxxx
 xxxxxx.xx xxxxxxxx xx.xxxxxx
 x............xx............x
 x.xxxx.xxxxx.xx.xxxxx.xxxx.x
