@@ -1,6 +1,14 @@
-    module Pacman.Actors.Types.Level (Level, LevelItem(..)) where
+module Pacman.Actors.Types.Level (Level, LevelItem, LevelItemT(..), PickupType(..), WallDirection(..), levelItemSize) where
 
-import Pacman.Actors.Types.Pickups
+data PickupType = Pill | PowerPill | Cherry
+data WallDirection = C | U | D | L | R | 
+                     CcUL | CcUR | CcDR | CcDL | --Concave corners
+                     CvUL | CvUR | CvDR | CvDL   --Convev corners
 
-type Level = [[LevelItem PickupType]]
-data LevelItem a = Blank | Pickup a | Wall | GhostsWall | GhostsGate
+data LevelItemT a b = Blank | Pickup a | Wall b | GhostsWall | GhostsGate
+type LevelItem = LevelItemT PickupType WallDirection
+
+type Level = [[LevelItem]]
+
+levelItemSize :: Int
+levelItemSize = 25

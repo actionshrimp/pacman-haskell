@@ -10,7 +10,7 @@ import qualified Pacman.Actors.Level as Level
 
 main :: IO ()
 main = do
-    sceneData <- Level.loadLevelData "01"
+    sceneData <- Level.readLevelData "01"
     let scene = Scene.loadScene sceneData
     createGameWindow (Scene.width scene) (Scene.height scene)
     Graphics.setDrawingOptions
