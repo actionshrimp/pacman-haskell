@@ -1,6 +1,8 @@
 module Pacman.Graphics.Level (renderLevel) where
 
-import Graphics.Rendering.OpenGL
+import Control.Monad
+
+import Graphics.Rendering.OpenGL hiding (R)
 
 import Pacman.Graphics.Base
 
@@ -14,24 +16,39 @@ renderLevel lvl = do
     let xs = map (*levelItemSize) [0.. length (head lvl)]
         ys = map (*levelItemSize) [0.. length lvl]
     
-        coordsGrid = map (zip xs . repeat) ys
+        gridCoords = map (zip xs . repeat) ys
 
-        pairedGrid = zipWith (zipWith (\x y -> (x, y))) lvl coordsGrid
+    zipWithM_ (zipWithM_ renderWall) lvl gridCoords
 
-    mapM_ (mapM_ renderWall) pairedGrid 
+w :: Float
+w = fromIntegral levelItemSize
 
-renderWall :: (LevelItem, (Int, Int)) -> IO ()
-renderWall (Wall _, (iX, iY)) = do
+wallPointSets :: WallDirection -> [[(Float, Float)]]
+wallPointSets U    = [[(0, 0), (0, 4), (8, 0), (8, 4)]]
+wallPointSets D    = [[(0, 4), (0, 8), (8, 4), (8, 8)]]
+wallPointSets L    = [[(4, 0), (4, 8), (8, 0), (8, 8)]]
+wallPointSets R    = [[(0, 0), (0, 8), (4, 0), (4, 8)]]
+wallPointSets CcUL = [[(0, 0), (0, 4), (2, 0), (2, 5), (3, 0), (3, 6), (4, 0), (4, 8)], [(4, 0), (4, 8), (8, 0), (8, 8)]]
+wallPointSets _    = [[(0, 0), (0, 8), (8, 0), (8, 8)]]
+
+wallDirColor :: WallDirection -> Color3 GLfloat
+--wallDirColor CcUL = Color3 1 0 0 :: Color3 GLfloat
+wallDirColor _ = blue
+
+positioned :: (Float, Float) -> [(Float, Float)] -> [(Float, Float)]
+positioned (x, y) = map (\(x1, y1) -> (x + w * x1 / 8, y + w * y1 / 8)) 
+
+renderWall :: LevelItem  -> (Int, Int) -> IO ()
+renderWall (Wall direction@_) (iX, iY) = do
     let
-        x = fromIntegral iX
-        y = fromIntegral iY
-        w = fromIntegral levelItemSize
+        (x, y) = (fromIntegral iX, fromIntegral iY)
+        pointSets = wallPointSets direction
+        positionedPointSets = map (positioned (x, y)) pointSets
 
-        wallPoints = [(x, y), (x + w, y), (x, y + w), (x + w, y + w)]
-        wallVerts = map pointToVertex wallPoints
+        wallVerts = map (map pointToVertex) positionedPointSets
 
-    color blue
+    color $ wallDirColor direction
     renderPrimitive TriangleStrip $
-        mapM_ vertex wallVerts
+        mapM_ (mapM_ vertex) wallVerts
 
-renderWall (_, _) = return ()
+renderWall _ _ = return ()
