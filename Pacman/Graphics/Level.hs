@@ -39,7 +39,7 @@ positioned :: (Float, Float) -> [(Float, Float)] -> [(Float, Float)]
 positioned (x, y) = map (\(x1, y1) -> (x + w * x1 / 8, y + w * y1 / 8)) 
 
 renderWall :: LevelItem  -> (Int, Int) -> IO ()
-renderWall (Wall direction@_) (iX, iY) = do
+renderWall (Wall direction) (iX, iY) = do
     let
         (x, y) = (fromIntegral iX, fromIntegral iY)
         pointSets = wallPointSets direction
