@@ -5,7 +5,7 @@ import Pacman.Actors.Types.Level
 readLevelData :: String -> IO [String]
 readLevelData levelName = do
         contents <- readFile ("data/levels/" ++ levelName ++ ".txt")
-        return (lines contents)
+        return (reverse . lines $ contents)
 
 loadLevel :: [String] -> Level
 loadLevel = deriveLevelWallDirections . toLevelItems

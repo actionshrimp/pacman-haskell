@@ -38,13 +38,6 @@ wallPoints CvDR = [(0, 32), (16, 32), (16, 28), (15, 24), (13, 21), (11, 19), (8
 wallPoints CvDL = [(32, 32), (32, 16), (28, 16), (24, 17), (21, 19), (19, 21), (17, 24), (16, 28), (16, 32)]
 wallPoints _    = [(0, 0), (0, 32), (32, 32), (32, 0)]
 
-wallDirColor :: WallDirection -> Color3 GLfloat
---wallDirColor CvUL = Color3 1 0 0 :: Color3 GLfloat
---wallDirColor CvUR = Color3 1 0 0 :: Color3 GLfloat
---wallDirColor CvDL = Color3 1 0 0 :: Color3 GLfloat
---wallDirColor CvDR = Color3 1 0 0 :: Color3 GLfloat
-wallDirColor _ = blue
-
 positioned :: (Float, Float) -> (Float, Float) -> (Float, Float)
 positioned (x, y) (x1, y1) =  (x + w * x1 / 32, y + w * y1 / 32)
 
@@ -57,7 +50,7 @@ renderWall (Wall direction) (iX, iY) = do
 
         verts = map pointToVertex positionedPoints
 
-    color $ wallDirColor direction
+    color blue
     renderPrimitive TriangleFan $
         mapM_ vertex verts
 
