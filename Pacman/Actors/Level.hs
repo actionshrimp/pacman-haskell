@@ -81,11 +81,11 @@ deriveWallDirection LevelItemWithNeighbours {
 deriveWallDirection LevelItemWithNeighbours {
     item = Wall C, nU = Wall C, nL = Wall C, nR =      _, nD = Wall C, nUL = Wall C, nUR =      _, nDR =      _, nDL = Wall C} = Wall R
 deriveWallDirection LevelItemWithNeighbours {
-    item = Wall C, nU =      _, nL =      _, nR = Wall C, nD = Wall C, nUL =      _, nUR = Wall C, nDR = Wall C, nDL = Wall C} = Wall CvUL
+    item = Wall C, nU =      _, nL =      _, nR = Wall C, nD = Wall C, nUL =      _, nUR =      _, nDR = Wall C, nDL =      _} = Wall CvUL
 deriveWallDirection LevelItemWithNeighbours {
-    item = Wall C, nU =      _, nL = Wall C, nR =      _, nD = Wall C, nUL = Wall C, nUR =      _, nDR = Wall C, nDL = Wall C} = Wall CvUR
+    item = Wall C, nU =      _, nL = Wall C, nR =      _, nD = Wall C, nUL =      _, nUR =      _, nDR =      _, nDL = Wall C} = Wall CvUR
 deriveWallDirection LevelItemWithNeighbours {
-    item = Wall C, nU = Wall C, nL = Wall C, nR =      _, nD =      _, nUL = Wall C, nUR = Wall C, nDR =      _, nDL = Wall C} = Wall CvDR
+    item = Wall C, nU = Wall C, nL = Wall C, nR =      _, nD =      _, nUL = Wall C, nUR =      _, nDR =      _, nDL =      _} = Wall CvDR
 deriveWallDirection LevelItemWithNeighbours {
-    item = Wall C, nU = Wall C, nL =      _, nR = Wall C, nD =      _, nUL = Wall C, nUR = Wall C, nDR = Wall C, nDL =      _} = Wall CvDL
+    item = Wall C, nU = Wall C, nL =      _, nR = Wall C, nD =      _, nUL =      _, nUR = Wall C, nDR =      _, nDL =      _} = Wall CvDL
 deriveWallDirection i = item i

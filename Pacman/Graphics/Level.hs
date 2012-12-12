@@ -23,32 +23,42 @@ renderLevel lvl = do
 w :: Float
 w = fromIntegral levelItemSize
 
-wallPointSets :: WallDirection -> [[(Float, Float)]]
-wallPointSets U    = [[(0, 0), (0, 4), (8, 0), (8, 4)]]
-wallPointSets D    = [[(0, 4), (0, 8), (8, 4), (8, 8)]]
-wallPointSets L    = [[(4, 0), (4, 8), (8, 0), (8, 8)]]
-wallPointSets R    = [[(0, 0), (0, 8), (4, 0), (4, 8)]]
-wallPointSets CcUL = [[(0, 0), (0, 4), (2, 0), (2, 5), (3, 0), (3, 6), (4, 0), (4, 8)], [(4, 0), (4, 8), (8, 0), (8, 8)]]
-wallPointSets _    = [[(0, 0), (0, 8), (8, 0), (8, 8)]]
+wallPoints :: WallDirection -> [(Float, Float)]
+wallPoints U    = [(0, 0), (0, 16), (32, 16), (32, 0)]
+wallPoints D    = [(0, 16), (0, 32), (32, 32), (32, 16)]
+wallPoints L    = [(16, 0), (16, 32), (32, 32), (32, 0)]
+wallPoints R    = [(0, 0), (0, 32), (16, 32), (16, 0)]
+wallPoints CcUL = [(32, 0), (0, 0), (0, 16), (8, 20), (12, 24), (16, 32), (32, 32)]
+wallPoints CcUR = [(0, 0), (0, 32), (16, 32), (20, 24), (24, 20), (32, 16), (32, 0)]
+wallPoints CcDR = [(0, 32), (32, 32), (32, 16), (24, 12), (20, 8), (16, 0), (0, 0)]
+wallPoints CcDL = [(32, 32), (32, 0), (16, 0), (12, 8), (8, 12), (0, 16), (0, 32)]
+wallPoints CvUL = [(32, 0), (16, 0), (16, 4), (17, 8), (19, 11), (21, 13), (24, 15), (28, 16), (32, 16)]
+wallPoints CvUR = [(0, 0), (0, 16), (4, 16), (8, 15), (11, 13), (13, 11), (15, 8), (16, 4), (16, 0)]
+wallPoints CvDR = [(0, 32), (16, 32), (16, 28), (15, 24), (13, 21), (11, 19), (8, 17), (4, 16), (0, 16)]
+wallPoints CvDL = [(32, 32), (32, 16), (28, 16), (24, 17), (21, 19), (19, 21), (17, 24), (16, 28), (16, 32)]
+wallPoints _    = [(0, 0), (0, 32), (32, 32), (32, 0)]
 
 wallDirColor :: WallDirection -> Color3 GLfloat
---wallDirColor CcUL = Color3 1 0 0 :: Color3 GLfloat
+--wallDirColor CvUL = Color3 1 0 0 :: Color3 GLfloat
+--wallDirColor CvUR = Color3 1 0 0 :: Color3 GLfloat
+--wallDirColor CvDL = Color3 1 0 0 :: Color3 GLfloat
+--wallDirColor CvDR = Color3 1 0 0 :: Color3 GLfloat
 wallDirColor _ = blue
 
-positioned :: (Float, Float) -> [(Float, Float)] -> [(Float, Float)]
-positioned (x, y) = map (\(x1, y1) -> (x + w * x1 / 8, y + w * y1 / 8)) 
+positioned :: (Float, Float) -> (Float, Float) -> (Float, Float)
+positioned (x, y) (x1, y1) =  (x + w * x1 / 32, y + w * y1 / 32)
 
 renderWall :: LevelItem  -> (Int, Int) -> IO ()
 renderWall (Wall direction) (iX, iY) = do
     let
         (x, y) = (fromIntegral iX, fromIntegral iY)
-        pointSets = wallPointSets direction
-        positionedPointSets = map (positioned (x, y)) pointSets
+        points = wallPoints direction
+        positionedPoints = map (positioned (x, y)) points
 
-        wallVerts = map (map pointToVertex) positionedPointSets
+        verts = map pointToVertex positionedPoints
 
     color $ wallDirColor direction
-    renderPrimitive TriangleStrip $
-        mapM_ (mapM_ vertex) wallVerts
+    renderPrimitive TriangleFan $
+        mapM_ vertex verts
 
 renderWall _ _ = return ()
