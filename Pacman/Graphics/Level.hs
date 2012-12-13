@@ -7,21 +7,25 @@ import Graphics.Rendering.OpenGL hiding (R)
 import Pacman.Graphics.Base
 
 import Pacman.Actors.Types.Level as Level
+import Pacman.Actors.Level
 
 blue :: Color3 GLfloat
 blue = Color3 0 0 1 :: Color3 GLfloat
 
+white :: Color3 GLfloat
+white = Color3 1 1 1 :: Color3 GLfloat
+
 renderLevel :: Level.Level -> IO ()
 renderLevel lvl = do
-    let xs = map (*levelItemSize) [0.. length (head lvl)]
-        ys = map (*levelItemSize) [0.. length lvl]
+    let xs = map ((*levelItemSize) . fromIntegral) [0.. levelW lvl]
+        ys = map ((*levelItemSize) . fromIntegral) [0.. levelH lvl]
     
         gridCoords = map (zip xs . repeat) ys
 
-    zipWithM_ (zipWithM_ renderWall) lvl gridCoords
+    zipWithM_ (zipWithM_ renderLevelItem) lvl gridCoords
 
 w :: Float
-w = fromIntegral levelItemSize
+w = levelItemSize
 
 wallPoints :: WallDirection -> [(Float, Float)]
 wallPoints U    = [(0, 0), (0, 16), (32, 16), (32, 0)]
@@ -41,10 +45,9 @@ wallPoints _    = [(0, 0), (0, 32), (32, 32), (32, 0)]
 positioned :: (Float, Float) -> (Float, Float) -> (Float, Float)
 positioned (x, y) (x1, y1) =  (x + w * x1 / 32, y + w * y1 / 32)
 
-renderWall :: LevelItem  -> (Int, Int) -> IO ()
-renderWall (Wall direction) (iX, iY) = do
+renderLevelItem :: LevelItem  -> (Float, Float) -> IO ()
+renderLevelItem (Wall direction) (x, y) = do
     let
-        (x, y) = (fromIntegral iX, fromIntegral iY)
         points = wallPoints direction
         positionedPoints = map (positioned (x, y)) points
 
@@ -54,4 +57,20 @@ renderWall (Wall direction) (iX, iY) = do
     renderPrimitive TriangleFan $
         mapM_ vertex verts
 
-renderWall _ _ = return ()
+renderLevelItem (Pickup Pill) (x, y) = renderPill 4 (x, y)
+renderLevelItem (Pickup PowerPill) (x, y) = renderPill 9 (x, y)
+    
+renderLevelItem _ _ = return ()
+
+renderPill :: Float -> (Float, Float) -> IO ()
+renderPill r (x, y) = do
+    let
+        m = w/2
+        points = [(m, m), (m - r, m), (m - 3*r/4, m + 3*r/4), (m, m + r), (m + 3*r/4, m + 3*r/4), (m + r, m), (m + 3*r/4, m - 3*r/4), (m, m - r), (m - 3*r/4, m - 3*r/4), (m - r, m)]
+        positionedPoints = map (positioned (x, y)) points
+
+        verts = map pointToVertex positionedPoints
+
+    color white
+    renderPrimitive TriangleFan $
+        mapM_ vertex verts

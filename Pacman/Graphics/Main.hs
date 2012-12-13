@@ -36,11 +36,11 @@ render sceneRef = do
 
     swapBuffers
 
-setProjection :: Int -> Int -> IO ()
+setProjection :: Float -> Float -> IO ()
 setProjection width height = do
     matrixMode $= Projection
     loadIdentity
-    ortho2D 0 (fromIntegral width) 0 (fromIntegral height)
+    ortho2D 0 (realToFrac width) 0 (realToFrac height)
 
 startDrawMode :: IO ()
 startDrawMode = do

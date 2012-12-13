@@ -1,4 +1,4 @@
-module Pacman.Actors.Level (levelItemSize, levelItem, loadLevel, readLevelData) where
+module Pacman.Actors.Level (levelItemSize, levelItem, loadLevel, readLevelData, levelW, levelH) where
 
 import Pacman.Actors.Types.Level
 
@@ -21,11 +21,19 @@ toLevelItem '-' = GhostsWall
 toLevelItem '+' = GhostsGate
 toLevelItem  _  = Blank
 
-levelItem :: Level -> Int -> Int -> LevelItem
-levelItem lvl x y | x >= 0 && x < lvlW && y >= 0 && y < lvlH = (lvl !! y) !! x
-                  | otherwise = Wall C
-                  where lvlW = length $ head lvl
-                        lvlH = length lvl
+levelW :: [[a]] -> Int
+levelW = length . head
+
+levelH :: [[a]] -> Int
+levelH = length
+
+levelItem :: [[a]] -> a -> Int -> Int -> a
+levelItem lvl defaultItem x y 
+    | x >= 0 && x < lvlW && y >= 0 && y < lvlH = (lvl !! y) !! x
+    | otherwise = defaultItem
+    where lvlW = levelW lvl
+          lvlH = levelH lvl
+
 
 deriveLevelWallDirections :: Level -> Level
 deriveLevelWallDirections = deriveWallDirections . levelWithNeighbours
@@ -47,15 +55,15 @@ data LevelItemWithNeighbours = LevelItemWithNeighbours { item :: LevelItem,
 
 levelItemWithNeighbours :: Level -> Int -> Int -> LevelItemWithNeighbours
 levelItemWithNeighbours lvl x y = LevelItemWithNeighbours {
-                            item = levelItem lvl x     y    ,
-                            nU  =  levelItem lvl x     (y+1),
-                            nL  =  levelItem lvl (x-1) y    ,
-                            nR  =  levelItem lvl (x+1) y    ,
-                            nD  =  levelItem lvl x     (y-1),
-                            nUL =  levelItem lvl (x-1) (y+1),
-                            nUR =  levelItem lvl (x+1) (y+1),
-                            nDR =  levelItem lvl (x+1) (y-1),
-                            nDL =  levelItem lvl (x-1) (y-1)
+                            item = levelItem lvl  Blank   x     y    ,
+                            nU  =  levelItem lvl (Wall C) x     (y+1),
+                            nL  =  levelItem lvl (Wall C) (x-1) y    ,
+                            nR  =  levelItem lvl (Wall C) (x+1) y    ,
+                            nD  =  levelItem lvl (Wall C) x     (y-1),
+                            nUL =  levelItem lvl (Wall C) (x-1) (y+1),
+                            nUR =  levelItem lvl (Wall C) (x+1) (y+1),
+                            nDR =  levelItem lvl (Wall C) (x+1) (y-1),
+                            nDL =  levelItem lvl (Wall C) (x-1) (y-1)
                             }
 
 deriveWallDirections :: [[LevelItemWithNeighbours]] -> Level

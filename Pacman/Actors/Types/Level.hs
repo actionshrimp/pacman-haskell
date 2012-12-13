@@ -10,5 +10,5 @@ type LevelItem = LevelItemT PickupType WallDirection
 
 type Level = [[LevelItem]]
 
-levelItemSize :: Int
+levelItemSize :: Float
 levelItemSize = 25

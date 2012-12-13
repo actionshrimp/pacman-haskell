@@ -12,7 +12,7 @@ main :: IO ()
 main = do
     sceneData <- Level.readLevelData "01"
     let scene = Scene.loadScene sceneData
-    createGameWindow (Scene.width scene) (Scene.height scene)
+    createGameWindow (floor . Scene.width $ scene) (floor . Scene.height $ scene)
     Graphics.setDrawingOptions
 
     sceneRef <- newIORef scene

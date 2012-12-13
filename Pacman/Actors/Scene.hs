@@ -1,5 +1,7 @@
 module Pacman.Actors.Scene (Scene(..), loadScene, update) where
 
+import Data.List as List
+
 import Pacman.Util.Types.Vec2
 import Pacman.Util.Types.Direction
 
@@ -25,11 +27,11 @@ update scene dt = Scene {
 loadScene :: [String] -> Scene
 loadScene levelData = Scene {
     elapsedTime = 0,
-    width = levelItemSize * length (head levelData),
-    height = levelItemSize * length levelData,
+    width = levelItemSize * (fromIntegral . levelW $ levelData),
+    height = levelItemSize * (fromIntegral . levelH $ levelData),
     level = loadLevel levelData,
     pacman = Pacman.Pacman {
-        Pacman.position = Vec2 {x = 300, y = 300},
+        Pacman.position = actorPosition levelData 'p',
         Pacman.mouthAngle = 0,
         Pacman.mouthAction = Pacman.Opening,
         Pacman.direction = DRight,
@@ -37,27 +39,39 @@ loadScene levelData = Scene {
     },
     ghosts = [
         Ghost.Ghost {
-            Ghost.position = Vec2 {x = 400, y = 400},
+            Ghost.position = actorPosition levelData 'a',
             Ghost.direction = DRight,
             Ghost.wobbleParam = 0,
             Ghost.eyePosition = Vec2 {x = 0, y = 0}
         },
         Ghost.Ghost {
-            Ghost.position = Vec2 {x = 500, y = 400},
+            Ghost.position = actorPosition levelData 'b',
             Ghost.direction = DRight,
             Ghost.wobbleParam = 0,
             Ghost.eyePosition = Vec2 {x = 0, y = 0}
         },
         Ghost.Ghost {
-            Ghost.position = Vec2 {x = 400, y = 300},
+            Ghost.position = actorPosition levelData 'c',
             Ghost.direction = DRight,
             Ghost.wobbleParam = 0,
             Ghost.eyePosition = Vec2 {x = 0, y = 0}
         },
         Ghost.Ghost {
-            Ghost.position = Vec2 {x = 100, y = 200},
+            Ghost.position = actorPosition levelData 'd',
             Ghost.direction = DRight,
             Ghost.wobbleParam = 0,
             Ghost.eyePosition = Vec2 {x = 0, y = 0}
         }
     ]}
+
+actorPosition :: [String] -> Char -> Vec2
+actorPosition levelData actorChar = Vec2 {
+        x = levelItemSize * avgX + levelItemSize / 2,
+        y = levelItemSize * avgY + levelItemSize / 2
+    } where
+    avgX = fromIntegral (sum . map fst $ matchingCoords) / fromIntegral (length matchingCoords)
+    avgY = fromIntegral (sum . map snd $ matchingCoords) / fromIntegral (length matchingCoords)
+    matchingCoords = filter ((== actorChar) . (uncurry (levelItem levelData ' '))) allCoords
+    allCoords = [(u, v) | u <- [0..lvlW], v <- [0..lvlH]]
+    lvlW = levelW levelData
+    lvlH = levelH levelData

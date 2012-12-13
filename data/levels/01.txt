@@ -9,11 +9,11 @@ x.xxxx.xx.xxxxxxxx.xx.xxxx.x
 x......xx....xx....xx......x
 xxxxxx.xxxxx xx xxxxx.xxxxxx
 xxxxxx.xxxxx xx xxxxx.xxxxxx
-xxxxxx.xx          xx.xxxxxx
+xxxxxx.xx    aa    xx.xxxxxx
 xxxxxx.xx ---++--- xx.xxxxxx
-xxxxxx.xx -gggggg- xx.xxxxxx
-      .   -gggggg-   .      
-xxxxxx.xx -gggggg- xx.xxxxxx
+xxxxxx.xx -      - xx.xxxxxx
+.......   -ccbbdd-   .......
+xxxxxx.xx -      - xx.xxxxxx
 xxxxxx.xx -------- xx.xxxxxx
 xxxxxx.xx          xx.xxxxxx
 xxxxxx.xx xxxxxxxx xx.xxxxxx
