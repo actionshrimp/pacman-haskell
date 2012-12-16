@@ -1,12 +1,18 @@
-module Pacman.Util.Functions (cyclingParam, circlePt, translatePts) where
+module Pacman.Util.Functions (cyclingParam, circlePt, translateItem, scaleItem) where
 
 import Control.Arrow
 
 translate :: (Float, Float) -> (Float, Float) -> (Float, Float)
 translate (x, y) = (+ x) *** (+ y)
 
-translatePts :: (Float, Float) -> [(Float, Float)] -> [(Float, Float)]
-translatePts dst = map $ translate dst
+translateItem :: (Float, Float) -> [(Float, Float)] -> [(Float, Float)]
+translateItem dst = map $ translate dst
+
+scale :: Float -> (Float, Float) -> (Float, Float)
+scale r = (* r) *** (* r)
+
+scaleItem :: Float -> [(Float, Float)] -> [(Float, Float)]
+scaleItem r = map $ scale r
 
 circlePt :: Float -> Float -> (Float, Float)
 circlePt r t = (r * cos t, r * sin t)
