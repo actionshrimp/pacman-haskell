@@ -1,6 +1,7 @@
 module Pacman.Graphics.Level (renderLevel) where
 
 import Control.Monad
+import Pacman.Util.Functions
 
 import Graphics.Rendering.OpenGL hiding (R)
 
@@ -8,6 +9,8 @@ import Pacman.Graphics.Base
 
 import Pacman.Actors.Types.Level as Level
 import Pacman.Actors.Level
+red :: Color3 GLfloat
+red = Color3 1 0 0 :: Color3 GLfloat
 
 blue :: Color3 GLfloat
 blue = Color3 0 0 1 :: Color3 GLfloat
@@ -15,59 +18,95 @@ blue = Color3 0 0 1 :: Color3 GLfloat
 white :: Color3 GLfloat
 white = Color3 1 1 1 :: Color3 GLfloat
 
-renderLevel :: Level.Level -> IO ()
-renderLevel lvl = do
+renderLevel :: Level.Level -> Float -> IO ()
+renderLevel lvl t = do
     let xs = map ((*levelItemSize) . fromIntegral) [0.. levelW lvl]
         ys = map ((*levelItemSize) . fromIntegral) [0.. levelH lvl]
     
         gridCoords = map (zip xs . repeat) ys
 
-    zipWithM_ (zipWithM_ renderLevelItem) lvl gridCoords
+    zipWithM_ (zipWithM_ (renderLevelItem t)) lvl gridCoords
+    --mapM_ (mapM_ renderOutlineDebug) gridCoords
 
-w :: Float
-w = levelItemSize
+--renderOutlineDebug :: (Float, Float) -> IO ()
+--renderOutlineDebug (x, y) = do
+--    let
+--        points = [(x, y), (x, y+w), (x+w, y+w), (x+w, y), (x, y)]
+--        verts = map pointToVertex points
+--
+--    color red 
+--    renderPrimitive LineStrip $
+--        mapM_ vertex verts
 
-wallPoints :: WallDirection -> [(Float, Float)]
-wallPoints U    = [(0, 0), (0, 16), (32, 16), (32, 0)]
-wallPoints D    = [(0, 16), (0, 32), (32, 32), (32, 16)]
-wallPoints L    = [(16, 0), (16, 32), (32, 32), (32, 0)]
-wallPoints R    = [(0, 0), (0, 32), (16, 32), (16, 0)]
-wallPoints CcUL = [(32, 0), (0, 0), (0, 16), (8, 20), (12, 24), (16, 32), (32, 32)]
-wallPoints CcUR = [(0, 0), (0, 32), (16, 32), (20, 24), (24, 20), (32, 16), (32, 0)]
-wallPoints CcDR = [(0, 32), (32, 32), (32, 16), (24, 12), (20, 8), (16, 0), (0, 0)]
-wallPoints CcDL = [(32, 32), (32, 0), (16, 0), (12, 8), (8, 12), (0, 16), (0, 32)]
-wallPoints CvUL = [(32, 0), (16, 0), (16, 4), (17, 8), (19, 11), (21, 13), (24, 15), (28, 16), (32, 16)]
-wallPoints CvUR = [(0, 0), (0, 16), (4, 16), (8, 15), (11, 13), (13, 11), (15, 8), (16, 4), (16, 0)]
-wallPoints CvDR = [(0, 32), (16, 32), (16, 28), (15, 24), (13, 21), (11, 19), (8, 17), (4, 16), (0, 16)]
-wallPoints CvDL = [(32, 32), (32, 16), (28, 16), (24, 17), (21, 19), (19, 21), (17, 24), (16, 28), (16, 32)]
-wallPoints _    = [(0, 0), (0, 32), (32, 32), (32, 0)]
+--level tile length
+l :: Float
+l = levelItemSize
 
-positioned :: (Float, Float) -> (Float, Float) -> (Float, Float)
-positioned (x, y) (x1, y1) =  (x + w * x1 / 32, y + w * y1 / 32)
+--Wall thickness
+wT :: Float
+wT = 8
 
-renderLevelItem :: LevelItem  -> (Float, Float) -> IO ()
-renderLevelItem (Wall direction) (x, y) = do
+--Concave radius
+ccRa :: Float
+ccRa = 16
+
+ccWall :: (Float, Float) -> Float -> Float -> Float -> [(Float, Float)]
+ccWall (x, y) r t0 t1 = concat wallCurve where
+    wallCurve = map (map (\(u, v) -> (x + u, y + v))) curve
+    curve = foldr (\t acc -> [circlePt r t, circlePt (r + wT) t] : acc) [] tPoints
+    tPoints = [t0, t0 +  t1/12 .. t1]
+
+wall :: WallDirection -> [(Float, Float)]
+wall U    = scaleWall [(0, 16 - wT), (0, 16), (32, 16 - wT), (32, 16)]
+wall D    = scaleWall [(0, 16), (0, 16 + wT), (32, 16), (32, 16 + wT)]
+wall L    = scaleWall [(16, 0), (16, 32), (16 + wT, 0), (16 + wT, 32)]
+wall R    = scaleWall [(16 - wT, 0), (16 - wT, 32), (16, 0), (16, 32)]
+
+wall CcDL = scaleWall $ ccWall (0, 0) ccRa 0 (pi / 2)
+wall CcDR = scaleWall $ ccWall (32, 0) ccRa (pi / 2) pi
+wall CcUR = scaleWall $ ccWall (32, 32) ccRa pi (3 * pi / 2)
+wall CcUL = scaleWall $ ccWall (0, 32) ccRa (3 * pi / 2) (2 * pi)
+
+wall CvUL = scaleWall $ ccWall (32, 0) (ccRa - wT) (pi / 2) pi
+wall CvUR = scaleWall $ ccWall (0, 0) (ccRa - wT) 0 (pi / 2)
+wall CvDL = scaleWall $ ccWall (32, 32) (ccRa - wT) pi (3 * pi / 2)
+wall CvDR = scaleWall $ ccWall (0, 32) (ccRa - wT) (3 * pi / 2) (2 * pi)
+wall _    = scaleWall []
+
+--wallColor CcUR = red
+wallColor _ = blue
+
+scaleWall :: [(Float, Float)] -> [(Float, Float)]
+scaleWall = map scaleWallPoint where
+                    scaleWallPoint (x, y) = (l * x / 32, l * y / 32)
+
+translateItem :: (Float, Float) -> [(Float, Float)] -> [(Float, Float)]
+translateItem dest = map (translatePoint dest) where 
+                       translatePoint (x, y) (x1, y1) = (x + x1, y + y1)
+
+renderLevelItem :: Float -> LevelItem  -> (Float, Float) -> IO ()
+renderLevelItem _ (Wall direction) dest = do
     let
-        points = wallPoints direction
-        positionedPoints = map (positioned (x, y)) points
+        points = translateItem dest $ wall direction
+        verts = map pointToVertex points
 
-        verts = map pointToVertex positionedPoints
-
-    color blue
-    renderPrimitive TriangleFan $
+    color (wallColor direction)
+    lineWidth $= 2
+    renderPrimitive TriangleStrip $
         mapM_ vertex verts
 
-renderLevelItem (Pickup Pill) (x, y) = renderPill 4 (x, y)
-renderLevelItem (Pickup PowerPill) (x, y) = renderPill 9 (x, y)
+renderLevelItem _ (Pickup Pill) (x, y) = renderPill 3 (x, y)
+renderLevelItem t (Pickup PowerPill) (x, y) = renderPill r_t (x, y) where
+    r_t = 7 * (sin (5*t) ** 2) + 2
     
-renderLevelItem _ _ = return ()
+renderLevelItem _ _ _ = return ()
 
 renderPill :: Float -> (Float, Float) -> IO ()
-renderPill r (x, y) = do
+renderPill r dest = do
     let
-        m = w/2
-        points = [(m, m), (m - r, m), (m - 3*r/4, m + 3*r/4), (m, m + r), (m + 3*r/4, m + 3*r/4), (m + r, m), (m + 3*r/4, m - 3*r/4), (m, m - r), (m - 3*r/4, m - 3*r/4), (m - r, m)]
-        positionedPoints = map (positioned (x, y)) points
+        m = l/2.0
+        points = map (\t -> (m + r * cos t, m + r * sin t)) [0, pi/8..2*pi]
+        positionedPoints = translateItem dest points
 
         verts = map pointToVertex positionedPoints
 

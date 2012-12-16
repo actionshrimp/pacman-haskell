@@ -49,6 +49,6 @@ startDrawMode = do
 
 renderScene :: Scene.Scene -> IO ()
 renderScene scene = do
-    renderLevel (Scene.level scene)
+    renderLevel (Scene.level scene) (Scene.elapsedTime scene)
     renderPacman (Scene.pacman scene)
     mapM_ (\(i, ghost) -> renderGhost ghost i) (zip [1..] (Scene.ghosts scene))

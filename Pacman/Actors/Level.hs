@@ -17,8 +17,8 @@ toLevelItem :: Char -> LevelItem
 toLevelItem 'x' = Wall C
 toLevelItem '.' = Pickup Pill
 toLevelItem 'o' = Pickup PowerPill
-toLevelItem '-' = GhostsWall
-toLevelItem '+' = GhostsGate
+toLevelItem '-' = GHWall H
+toLevelItem '+' = GHGate
 toLevelItem  _  = Blank
 
 levelW :: [[a]] -> Int
@@ -96,4 +96,16 @@ deriveWallDirection LevelItemWithNeighbours {
     item = Wall C, nU = Wall C, nL = Wall C, nR =      _, nD =      _, nUL = Wall C, nUR =      _, nDR =      _, nDL =      _} = Wall CvDR
 deriveWallDirection LevelItemWithNeighbours {
     item = Wall C, nU = Wall C, nL =      _, nR = Wall C, nD =      _, nUL =      _, nUR = Wall C, nDR =      _, nDL =      _} = Wall CvDL
+
+deriveWallDirection LevelItemWithNeighbours {
+    item = GHWall H, nU = GHWall H, nD = GHWall H } = GHWall V
+deriveWallDirection LevelItemWithNeighbours {
+    item = GHWall H, nL = GHWall H, nD = GHWall H } = GHWall UR
+deriveWallDirection LevelItemWithNeighbours {
+    item = GHWall H, nR = GHWall H, nD = GHWall H } = GHWall UL
+deriveWallDirection LevelItemWithNeighbours {
+    item = GHWall H, nL = GHWall H, nU = GHWall H } = GHWall DR
+deriveWallDirection LevelItemWithNeighbours {
+    item = GHWall H, nR = GHWall H, nU = GHWall H } = GHWall DL
+
 deriveWallDirection i = item i
