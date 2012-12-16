@@ -29,7 +29,7 @@ loadScene levelData = Scene {
     height = levelItemSize * (fromIntegral . levelH $ levelData),
     level = loadLevel levelData,
     pacman = Pacman.Pacman {
-        Pacman.position = actorPosition levelData 'p',
+        Pacman.position = initialActorPosition levelData 'p',
         Pacman.mouthAngle = 0,
         Pacman.mouthAction = Pacman.Opening,
         Pacman.direction = DRight,
@@ -37,33 +37,33 @@ loadScene levelData = Scene {
     },
     ghosts = [
         Ghost.Ghost {
-            Ghost.position = actorPosition levelData 'a',
+            Ghost.position = initialActorPosition levelData 'a',
             Ghost.direction = DRight,
             Ghost.wobbleParam = 0,
             Ghost.eyePosition = (0, 0)
         },
         Ghost.Ghost {
-            Ghost.position = actorPosition levelData 'b',
+            Ghost.position = initialActorPosition levelData 'b',
             Ghost.direction = DRight,
             Ghost.wobbleParam = 0,
             Ghost.eyePosition = (0, 0)
         },
         Ghost.Ghost {
-            Ghost.position = actorPosition levelData 'c',
+            Ghost.position = initialActorPosition levelData 'c',
             Ghost.direction = DRight,
             Ghost.wobbleParam = 0,
             Ghost.eyePosition = (0, 0)
         },
         Ghost.Ghost {
-            Ghost.position = actorPosition levelData 'd',
+            Ghost.position = initialActorPosition levelData 'd',
             Ghost.direction = DRight,
             Ghost.wobbleParam = 0,
             Ghost.eyePosition = (0, 0)
         }
     ]}
 
-actorPosition :: [String] -> Char -> Vec2
-actorPosition levelData actorChar = (levelItemSize * avgX + levelItemSize / 2, levelItemSize * avgY + levelItemSize / 2) where
+initialActorPosition :: [String] -> Char -> Vec2
+initialActorPosition levelData actorChar = (levelItemSize * avgX + levelItemSize / 2, levelItemSize * avgY + levelItemSize / 2) where
     avgX = fromIntegral (sum . map fst $ matchingCoords) / fromIntegral (length matchingCoords)
     avgY = fromIntegral (sum . map snd $ matchingCoords) / fromIntegral (length matchingCoords)
     matchingCoords = filter ((== actorChar) . (uncurry (levelItem levelData ' '))) allCoords
