@@ -1,7 +1,5 @@
 module Pacman.Actors.Scene (Scene(..), loadScene, update) where
 
-import Data.List as List
-
 import Pacman.Util.Types.Vec2
 import Pacman.Util.Types.Direction
 
@@ -42,33 +40,30 @@ loadScene levelData = Scene {
             Ghost.position = actorPosition levelData 'a',
             Ghost.direction = DRight,
             Ghost.wobbleParam = 0,
-            Ghost.eyePosition = Vec2 {x = 0, y = 0}
+            Ghost.eyePosition = (0, 0)
         },
         Ghost.Ghost {
             Ghost.position = actorPosition levelData 'b',
             Ghost.direction = DRight,
             Ghost.wobbleParam = 0,
-            Ghost.eyePosition = Vec2 {x = 0, y = 0}
+            Ghost.eyePosition = (0, 0)
         },
         Ghost.Ghost {
             Ghost.position = actorPosition levelData 'c',
             Ghost.direction = DRight,
             Ghost.wobbleParam = 0,
-            Ghost.eyePosition = Vec2 {x = 0, y = 0}
+            Ghost.eyePosition = (0, 0)
         },
         Ghost.Ghost {
             Ghost.position = actorPosition levelData 'd',
             Ghost.direction = DRight,
             Ghost.wobbleParam = 0,
-            Ghost.eyePosition = Vec2 {x = 0, y = 0}
+            Ghost.eyePosition = (0, 0)
         }
     ]}
 
 actorPosition :: [String] -> Char -> Vec2
-actorPosition levelData actorChar = Vec2 {
-        x = levelItemSize * avgX + levelItemSize / 2,
-        y = levelItemSize * avgY + levelItemSize / 2
-    } where
+actorPosition levelData actorChar = (levelItemSize * avgX + levelItemSize / 2, levelItemSize * avgY + levelItemSize / 2) where
     avgX = fromIntegral (sum . map fst $ matchingCoords) / fromIntegral (length matchingCoords)
     avgY = fromIntegral (sum . map snd $ matchingCoords) / fromIntegral (length matchingCoords)
     matchingCoords = filter ((== actorChar) . (uncurry (levelItem levelData ' '))) allCoords

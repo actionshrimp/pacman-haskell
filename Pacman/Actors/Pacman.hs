@@ -1,6 +1,5 @@
 module Pacman.Actors.Pacman (MouthAction(..), Pacman(..), update) where
 
-import Pacman.Util.Types.Vec2
 import Pacman.Util.Types.Direction
 
 import Pacman.Actors.Types.Pacman

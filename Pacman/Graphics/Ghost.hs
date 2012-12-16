@@ -4,13 +4,12 @@ import Graphics.Rendering.OpenGL
 
 import Pacman.Graphics.Base
 
-import qualified Pacman.Util.Types.Vec2 as Vec2
 import qualified Pacman.Actors.Types.Ghost as Ghost
 
 renderGhost :: Ghost.Ghost -> Int -> IO ()
 renderGhost ghost i = do
     let
-        Vec2.Vec2 {Vec2.x = x, Vec2.y = y} = Ghost.position ghost
+        (x, y) = Ghost.position ghost
 
         r = 20
         fanPoints = (x, y) : map (\a -> (x + r * cos a, y + r * sin a)) [0, pi/64..pi]
@@ -36,8 +35,8 @@ renderGhost ghost i = do
         outlineR = r / 2.2
         whiteR = r / 2.5
         spaceX = r / 2.9
-        offX = (Vec2.x . Ghost.eyePosition $ ghost) * r / 10 
-        offY = (r / 6) + (Vec2.y . Ghost.eyePosition $ ghost) * r / 6
+        offX = (fst . Ghost.eyePosition $ ghost) * r / 10 
+        offY = (r / 6) + (snd . Ghost.eyePosition $ ghost) * r / 6
         
         lEyeOutline = (x - spaceX + offX, y + offY) : map (\a -> ((x - spaceX + offX) + (7 * outlineR / 8) * cos a, y + offY + outlineR * sin a)) [0, pi/16..2*pi]
         rEyeOutline = map (\a -> ((x + spaceX + offX) + (7 * outlineR / 8) * cos a, y + offY + outlineR * sin a)) [0, pi/16..2*pi]
@@ -50,8 +49,8 @@ renderGhost ghost i = do
         rEyeWhiteVertices = map pointToVertex rEyeWhite
 
         pupilR = r / 6
-        pupilOffX = (Vec2.x . Ghost.eyePosition $ ghost) * r / 4
-        pupilOffY = (Vec2.y . Ghost.eyePosition $ ghost) * r / 5
+        pupilOffX = (fst . Ghost.eyePosition $ ghost) * r / 4
+        pupilOffY = (snd . Ghost.eyePosition $ ghost) * r / 5
         lPupil = map (\a -> ((x - spaceX + pupilOffX) + pupilR * cos a, y + offY + pupilOffY + pupilR * sin a)) [0, pi/16..2*pi]
         rPupil = map (\a -> ((x + spaceX + pupilOffX) + pupilR * cos a, y + offY + pupilOffY + pupilR * sin a)) [0, pi/16..2*pi]
         lPupilVertices = map pointToVertex lPupil

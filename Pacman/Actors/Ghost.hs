@@ -21,12 +21,14 @@ baseEyeVelocity ::  Float
 baseEyeVelocity = 3.0
 
 updateEyePosition :: Vec2 -> Direction -> Float -> Vec2
-updateEyePosition Vec2 {x = curX, y = curY} direc dt = Vec2 {x = curX + vX * dt, y = curY + vY * dt} where vX = baseEyeVelocity * (targetX - curX)
-                                                                                                           vY = baseEyeVelocity * (targetY - curY)
-                                                                                                           Vec2 {x = targetX, y = targetY} = directionVec direc
+updateEyePosition (curX, curY) direc dt = (curX + vX * dt, curY + vY * dt) where 
+                                            vX = baseEyeVelocity * (targetX - curX)
+                                            vY = baseEyeVelocity * (targetY - curY)
+                                            (targetX,  targetY) = directionVec direc
+
 updateDirection :: Direction -> Float -> Direction
 updateDirection curDirec totalTime | timeMod20 > 15 = DRight
                                    | timeMod20 > 10 = DUp
                                    | timeMod20 > 5 = DLeft
                                    | otherwise = DDown
-                                   where timeMod20 = ((truncate totalTime) `mod` 20)
+                                   where timeMod20 = (truncate totalTime) `mod` 20
