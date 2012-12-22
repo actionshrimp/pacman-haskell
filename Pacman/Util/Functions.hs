@@ -2,19 +2,21 @@ module Pacman.Util.Functions (cyclingParam, circlePt, translateItem, scaleItem) 
 
 import Control.Arrow
 
-translate :: (Float, Float) -> (Float, Float) -> (Float, Float)
+import Pacman.Util.Types.Vec2
+
+translate :: Vec2 -> Vec2 -> Vec2
 translate (x, y) = (+ x) *** (+ y)
 
-translateItem :: (Float, Float) -> [(Float, Float)] -> [(Float, Float)]
+translateItem :: Vec2 -> [Vec2] -> [Vec2]
 translateItem dst = map $ translate dst
 
-scale :: Float -> (Float, Float) -> (Float, Float)
+scale :: Float -> Vec2 -> Vec2
 scale r = (* r) *** (* r)
 
-scaleItem :: Float -> [(Float, Float)] -> [(Float, Float)]
+scaleItem :: Float -> [Vec2] -> [Vec2]
 scaleItem r = map $ scale r
 
-circlePt :: Float -> Float -> (Float, Float)
+circlePt :: Float -> Float -> Vec2
 circlePt r t = (r * cos t, r * sin t)
 
 cyclingParam :: (Ord a, Num a) => a -> a -> a -> a

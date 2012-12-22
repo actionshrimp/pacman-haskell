@@ -1,4 +1,7 @@
-module Pacman.Actors.Level (levelItemSize, levelItem, loadLevel, readLevelData, levelW, levelH) where
+module Pacman.Actors.Level (levelItemSize, levelItem, loadLevel, readLevelData, levelW, levelH, isTraversable, moveActor, canMoveActor) where
+
+import Pacman.Util.Types.Vec2
+import Pacman.Util.Types.Direction
 
 import Pacman.Actors.Types.Level
 
@@ -109,3 +112,42 @@ deriveWallDirection LevelItemWithNeighbours {
     item = GHWall H, nR = GHWall H, nU = GHWall H } = GHWall DL
 
 deriveWallDirection i = item i
+
+isTraversable :: LevelItem -> Bool
+isTraversable (Wall _) = False
+isTraversable (GHWall _) = False
+isTraversable GHGate = False
+isTraversable _ = True
+
+vecToItem :: Level -> Vec2 -> LevelItem
+vecToItem lvl (vecX, vecY) = levelItem lvl Blank x y where
+                        (x, y) = (floor (vecX / levelItemSize), floor (vecY / levelItemSize))
+
+canMoveActor :: Level -> Direction -> Float -> Vec2 -> Bool 
+canMoveActor lvl direc dt (x0, y0) = 
+        isTraversable (vecToItem lvl (frontX, frontY)) &&
+        isTraversable (vecToItem lvl (cwX, cwY)) &&
+        isTraversable (vecToItem lvl (ccwX, ccwY))
+    where
+        (frontX, frontY) = (trgtX + v_x * l / 2, trgtY + v_y * l / 2)
+        (cwX, cwY) = cw (frontX, frontY)
+        (cwSideX, cwSideY) = (cwX +  v_x * dt * actorV, cwY + v_y * dt * actorV)
+        (ccwX, ccwY) = ccw (frontX, frontY)
+        (ccwSideX, ccwSideY) = (ccwX + v_x * dt * actorV, ccwY + v_y * dt * actorV)
+        (trgtX, trgtY) = (x0 + v_x * dt * actorV, y0 + v_y * dt * actorV)
+        (v_x, v_y) = directionVec direc
+        l = levelItemSize
+
+cw (x, y) = (-y, x)
+ccw (x, y) = (y, -x)
+
+moveActor :: Level -> Direction -> Float -> Vec2 -> Vec2 
+moveActor lvl direc dt src@(x0, y0) 
+    | canMoveActor lvl direc dt src  = (trgtX, trgtY)
+    | otherwise = (midX, midY)
+    where
+        midX = (fromIntegral . floor $ (x0 / l)) * l + l / 2
+        midY = (fromIntegral . floor $ (y0 / l)) * l + l / 2
+        (trgtX, trgtY) = (x0 + v_x * dt * actorV, y0 + v_y * dt * actorV)
+        (v_x, v_y) = directionVec direc
+        l = levelItemSize

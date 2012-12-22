@@ -2,6 +2,7 @@ module Pacman.Actors.Scene (Scene(..), loadScene, update) where
 
 import Pacman.Util.Types.Vec2
 import Pacman.Util.Types.Direction
+import qualified Pacman.Util.Types.InputCommands as Cmd
 
 import Pacman.Actors.Types.Scene
 import qualified Pacman.Actors.Types.Pacman as Pacman
@@ -11,14 +12,14 @@ import Pacman.Actors.Level
 import qualified Pacman.Actors.Pacman as P
 import qualified Pacman.Actors.Ghost as G
 
-update :: Scene -> Float -> Scene
-update scene dt = Scene {
+update :: Scene -> Float -> Maybe Cmd.InputCommand -> Scene
+update scene dt input = Scene {
                         elapsedTime = elapsedTime scene + dt,
                         level = level scene,
                         width = width scene,
                         height = height scene,
-                        pacman = P.update (pacman scene) dt,
-                        ghosts = map (\x -> G.update x scene dt) (ghosts scene)
+                        pacman = P.update scene dt input (pacman scene),
+                        ghosts = map (G.update scene dt) (ghosts scene)
                      }
 
 
