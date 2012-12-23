@@ -4,8 +4,6 @@ import Pacman.Actors.Types.Pacman
 import Pacman.Actors.Types.Ghost
 import Pacman.Actors.Types.Level
 
-import Pacman.Actors.Level
-
 data Scene = Scene { elapsedTime :: Float,
                      width :: Float,
                      height :: Float,

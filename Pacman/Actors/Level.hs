@@ -7,12 +7,15 @@ module Pacman.Actors.Level (
     levelW, 
     levelH, 
     isTraversable,
-    vecToItem) where
+    vecToItem,
+    updateLevel) where
 
 import Pacman.Util.Types.Vec2
 import Pacman.Util.Types.Direction
 
 import Pacman.Actors.Types.Level
+import Pacman.Actors.Types.Scene
+import Pacman.Actors.Types.Pacman
 
 readLevelData :: String -> IO [String]
 readLevelData levelName = do
@@ -114,9 +117,12 @@ isTraversable (GHWall _) = False
 isTraversable GHGate = False
 isTraversable _ = True
 
+vecToItemIndices :: Vec2 -> (Int, Int)
+vecToItemIndices (x, y) = (floor (x / levelItemSize), floor (y / levelItemSize))
+
 vecToItem :: Level -> Vec2 -> LevelItem
-vecToItem lvl (vecX, vecY) = levelItem lvl Blank x y where
-                        (x, y) = (floor (vecX / levelItemSize), floor (vecY / levelItemSize))
+vecToItem lvl vec = levelItem lvl Blank x y where
+                        (x, y) = vecToItemIndices vec
 
 initialActorPosition :: [String] -> Char -> Vec2
 initialActorPosition levelData actorChar = (levelItemSize * avgX + levelItemSize / 2, levelItemSize * avgY + levelItemSize / 2) where
@@ -127,3 +133,21 @@ initialActorPosition levelData actorChar = (levelItemSize * avgX + levelItemSize
     lvlW = levelW levelData
     lvlH = levelH levelData
 
+
+isChompable :: LevelItem -> Bool
+isChompable (Pickup _) = True
+isChompable _ = False
+
+replaceItem :: Level -> Vec2 -> LevelItem -> Level
+replaceItem lvl vec itemToReplaceWith = replaceAt lvl y newRow where
+                                    newRow = replaceAt row x itemToReplaceWith
+                                    row = lvl !! y
+                                    (x, y) = vecToItemIndices vec
+                                    replaceAt list n newItem = is ++ [newItem] ++ js where
+                                        (is,_:js) = splitAt n list
+
+updateLevel :: Scene -> Level -> Level
+updateLevel scene lvl | isChompable (vecToItem lvl pacmanVec) = replaceItem lvl pacmanVec Blank
+                      | otherwise = lvl
+                      where
+                        pacmanVec = position . pacman $ scene

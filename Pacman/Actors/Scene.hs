@@ -16,12 +16,14 @@ import qualified Pacman.Actors.Ghost as G
 update :: Scene -> Float -> Maybe Cmd.InputCommand -> Scene
 update scene dt input = Scene {
                         elapsedTime = elapsedTime scene + dt,
-                        level = level scene,
+                        level = newLevel,
                         width = width scene,
                         height = height scene,
                         pacman = P.update scene dt input (pacman scene),
                         ghosts = map (G.update scene dt) (ghosts scene)
-                     }
+                     } where
+                        oldLevel = (level scene)
+                        newLevel = updateLevel scene oldLevel
 
 
 loadScene :: [String] -> Scene
