@@ -18,12 +18,18 @@ renderPacman :: Pacman.Pacman -> IO ()
 renderPacman pacman = do
     let 
         (x, y) = Pacman.position pacman
-        d = directionAngle (Pacman.direction pacman)
+        oldD = Pacman.prevDirection pacman
+        newD = Pacman.direction pacman
+        oldDA = directionAngle oldD
+        newDA = directionAngle newD
+        deltaDA | (oldD == DRight && newD == DDown) = - pi / 2
+                | (oldD == DDown && newD == DRight) = pi / 2
+                | otherwise = newDA - oldDA
+        d = oldDA + deltaDA * (Pacman.directionChangeParam pacman)
         mouthAngle = Pacman.mouthAngle pacman
         r = 20
         points = (x, y) : (map pacmanPoints [0, pi/64..2*pi])
-        pacmanPoints angle | abs (angle - d) < mouthAngle = (x, y)
-                           | abs (2 * pi - (angle - d)) < mouthAngle = (x, y)
+        pacmanPoints angle | (acos . cos $ (angle - d)) < mouthAngle = (x, y)
                            | otherwise = (x + r * cos angle, y + r * sin angle)
         vertices = map pointToVertex points
 

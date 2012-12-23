@@ -8,5 +8,7 @@ data Pacman = Pacman { position :: Vec2,
                        mouthAngle :: Float,
                        mouthAction :: MouthAction,
                        direction :: Direction,
+                       prevDirection :: Direction,
+                       directionChangeParam :: Float,
                        queuedDirection :: Maybe Direction }
 

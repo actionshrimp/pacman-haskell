@@ -2,7 +2,7 @@ module Pacman.Util.Types.Direction (Direction(..), directionVec) where
 
 import Pacman.Util.Types.Vec2
 
-data Direction = DUp | DDown | DRight | DLeft
+data Direction = DUp | DDown | DRight | DLeft deriving (Eq)
 
 directionVec :: Direction -> Vec2
 directionVec DUp = (0, 1)

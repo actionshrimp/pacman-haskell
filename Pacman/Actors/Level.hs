@@ -1,4 +1,13 @@
-module Pacman.Actors.Level (levelItemSize, levelItem, loadLevel, readLevelData, levelW, levelH, isTraversable, moveActor, canMoveActor) where
+module Pacman.Actors.Level (
+    levelItemSize, 
+    levelItem, 
+    loadLevel, 
+    readLevelData, 
+    initialActorPosition,
+    levelW, 
+    levelH, 
+    isTraversable,
+    vecToItem) where
 
 import Pacman.Util.Types.Vec2
 import Pacman.Util.Types.Direction
@@ -23,20 +32,6 @@ toLevelItem 'o' = Pickup PowerPill
 toLevelItem '-' = GHWall H
 toLevelItem '+' = GHGate
 toLevelItem  _  = Blank
-
-levelW :: [[a]] -> Int
-levelW = length . head
-
-levelH :: [[a]] -> Int
-levelH = length
-
-levelItem :: [[a]] -> a -> Int -> Int -> a
-levelItem lvl defaultItem x y 
-    | x >= 0 && x < lvlW && y >= 0 && y < lvlH = (lvl !! y) !! x
-    | otherwise = defaultItem
-    where lvlW = levelW lvl
-          lvlH = levelH lvl
-
 
 deriveLevelWallDirections :: Level -> Level
 deriveLevelWallDirections = deriveWallDirections . levelWithNeighbours
@@ -123,31 +118,12 @@ vecToItem :: Level -> Vec2 -> LevelItem
 vecToItem lvl (vecX, vecY) = levelItem lvl Blank x y where
                         (x, y) = (floor (vecX / levelItemSize), floor (vecY / levelItemSize))
 
-canMoveActor :: Level -> Direction -> Float -> Vec2 -> Bool 
-canMoveActor lvl direc dt (x0, y0) = 
-        isTraversable (vecToItem lvl (frontX, frontY)) &&
-        isTraversable (vecToItem lvl (cwX, cwY)) &&
-        isTraversable (vecToItem lvl (ccwX, ccwY))
-    where
-        (frontX, frontY) = (trgtX + v_x * l / 2, trgtY + v_y * l / 2)
-        (cwX, cwY) = cw (frontX, frontY)
-        (cwSideX, cwSideY) = (cwX +  v_x * dt * actorV, cwY + v_y * dt * actorV)
-        (ccwX, ccwY) = ccw (frontX, frontY)
-        (ccwSideX, ccwSideY) = (ccwX + v_x * dt * actorV, ccwY + v_y * dt * actorV)
-        (trgtX, trgtY) = (x0 + v_x * dt * actorV, y0 + v_y * dt * actorV)
-        (v_x, v_y) = directionVec direc
-        l = levelItemSize
+initialActorPosition :: [String] -> Char -> Vec2
+initialActorPosition levelData actorChar = (levelItemSize * avgX + levelItemSize / 2, levelItemSize * avgY + levelItemSize / 2) where
+    avgX = fromIntegral (sum . map fst $ matchingCoords) / fromIntegral (length matchingCoords)
+    avgY = fromIntegral (sum . map snd $ matchingCoords) / fromIntegral (length matchingCoords)
+    matchingCoords = filter ((== actorChar) . (uncurry (levelItem levelData ' '))) allCoords
+    allCoords = [(u, v) | u <- [0..lvlW], v <- [0..lvlH]]
+    lvlW = levelW levelData
+    lvlH = levelH levelData
 
-cw (x, y) = (-y, x)
-ccw (x, y) = (y, -x)
-
-moveActor :: Level -> Direction -> Float -> Vec2 -> Vec2 
-moveActor lvl direc dt src@(x0, y0) 
-    | canMoveActor lvl direc dt src  = (trgtX, trgtY)
-    | otherwise = (midX, midY)
-    where
-        midX = (fromIntegral . floor $ (x0 / l)) * l + l / 2
-        midY = (fromIntegral . floor $ (y0 / l)) * l + l / 2
-        (trgtX, trgtY) = (x0 + v_x * dt * actorV, y0 + v_y * dt * actorV)
-        (v_x, v_y) = directionVec direc
-        l = levelItemSize

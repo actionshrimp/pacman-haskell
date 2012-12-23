@@ -1,4 +1,4 @@
-module Pacman.Actors.Types.Level (Level, LevelItem, LevelItemT(..), PickupType(..), WallDirection(..), GHWallDirection(..), levelItemSize, actorV) where
+module Pacman.Actors.Types.Level (Level, LevelItem, LevelItemT(..), PickupType(..), WallDirection(..), GHWallDirection(..), levelItemSize, actorV, levelItem, levelW, levelH) where
 
 data PickupType = Pill | PowerPill | Cherry
 data WallDirection = C | U | D | L | R | 
@@ -17,3 +17,16 @@ levelItemSize = 26
 
 actorV :: Float
 actorV = levelItemSize * 4
+
+levelItem :: [[a]] -> a -> Int -> Int -> a
+levelItem lvl defaultItem x y 
+    | x >= 0 && x < lvlW && y >= 0 && y < lvlH = (lvl !! y) !! x
+    | otherwise = defaultItem
+    where lvlW = levelW lvl
+          lvlH = levelH lvl
+
+levelW :: [[a]] -> Int
+levelW = length . head
+
+levelH :: [[a]] -> Int
+levelH = length

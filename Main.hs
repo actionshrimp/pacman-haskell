@@ -55,11 +55,12 @@ update sceneRef inputRef = do
 
 getInput :: IORef (Maybe (Cmd.InputCommandT Direction))-> Key -> KeyState -> t -> t1 -> IO ()
 getInput inputRef key state _ _ = do
+    prevCommand <- readIORef inputRef 
     let 
         inputCommand (SpecialKey KeyUp) Down = Just (Cmd.MovePacman DUp)
         inputCommand (SpecialKey KeyDown) Down = Just (Cmd.MovePacman DDown)
         inputCommand (SpecialKey KeyLeft) Down = Just (Cmd.MovePacman DLeft)
         inputCommand (SpecialKey KeyRight) Down = Just (Cmd.MovePacman DRight)
-        inputCommand _ _ = Nothing
+        inputCommand _ _ = prevCommand
 
     modifyIORef inputRef (\_ -> inputCommand key state)

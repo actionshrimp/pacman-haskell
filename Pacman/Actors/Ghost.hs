@@ -7,6 +7,7 @@ import Pacman.Util.Functions
 import Pacman.Actors.Types.Ghost
 import Pacman.Actors.Types.Scene
 
+import Pacman.Actors.Base
 import Pacman.Actors.Level
 
 wobbleVelocity ::  Float
