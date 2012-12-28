@@ -3,31 +3,39 @@ module Main(main) where
 import Data.IORef
 import Graphics.UI.GLUT
 
-import qualified Pacman.Actors.Scene as Scene
+import Pacman.World
+import Pacman.Level
+
 import qualified Pacman.Graphics.Main as Graphics
+import qualified Pacman.Graphics.Level as LevelGraphics
 
-import qualified Pacman.Actors.Level as Level
-
-import Pacman.Util.Types.Direction
-import qualified Pacman.Util.Types.InputCommands as Cmd
+import Pacman.InputCommand
 
 main :: IO ()
 main = do
-    sceneData <- Level.readLevelData "01"
-    let scene = Scene.loadScene sceneData
-        input = Nothing :: Maybe Cmd.InputCommand
+    levelData <- readLevelData "01"
+    let world = initializeWorld levelData
+        input = Nothing :: Maybe InputCommand
 
-    createGameWindow (floor . Scene.width $ scene) (floor . Scene.height $ scene)
+        w = floor LevelGraphics.levelItemSize * (levelWidth . worldLevel $ world)
+        h = floor LevelGraphics.levelItemSize * (levelHeight . worldLevel $ world)
+
+    createGameWindow w h
     Graphics.setDrawingOptions
 
-    sceneRef <- newIORef scene
+    worldRef <- newIORef world
     inputRef <- newIORef input
 
-    displayCallback $= Graphics.render sceneRef
-    idleCallback $= Just (update sceneRef inputRef)
+    displayCallback $= Graphics.render worldRef
+    idleCallback $= Just (update worldRef inputRef)
     keyboardMouseCallback $= Just (getInput inputRef)
 
     mainLoop
+
+readLevelData :: String -> IO [String]
+readLevelData levelName = do
+        contents <- readFile ("data/levels/" ++ levelName ++ ".txt")
+        return (reverse . lines $ contents)
 
 createGameWindow :: Int -> Int -> IO ()
 createGameWindow windowWidth windowHeight = do
@@ -41,26 +49,26 @@ setWindowOptions width height = do
     initialWindowSize $= Size (fromIntegral width) (fromIntegral height)
     Graphics.setWindowOptions
 
-update :: IORef Scene.Scene -> IORef (Maybe Cmd.InputCommand) -> IO ()
-update sceneRef inputRef = do
-    scene <- readIORef sceneRef
+update :: IORef World -> IORef (Maybe InputCommand) -> IO ()
+update worldRef inputRef = do
+    world <- readIORef worldRef
     input <- readIORef inputRef
 
     newTime <- get elapsedTime
-    let dt = fromIntegral newTime / 1000.0 - Scene.elapsedTime scene
+    let dt = fromIntegral newTime / 1000.0 - worldElapsedTime world
 
-    modifyIORef sceneRef (\_ -> Scene.update scene dt input)
+    --modifyIORef worldRef (\_ -> worldUpdate world dt input)
 
     postRedisplay Nothing
 
-getInput :: IORef (Maybe (Cmd.InputCommandT Direction))-> Key -> KeyState -> t -> t1 -> IO ()
+getInput :: IORef (Maybe InputCommand)-> Key -> KeyState -> t -> t1 -> IO ()
 getInput inputRef key state _ _ = do
     prevCommand <- readIORef inputRef 
     let 
-        inputCommand (SpecialKey KeyUp) Down = Just (Cmd.MovePacman DUp)
-        inputCommand (SpecialKey KeyDown) Down = Just (Cmd.MovePacman DDown)
-        inputCommand (SpecialKey KeyLeft) Down = Just (Cmd.MovePacman DLeft)
-        inputCommand (SpecialKey KeyRight) Down = Just (Cmd.MovePacman DRight)
+        inputCommand (SpecialKey KeyUp) Down = Just MovePacmanUp
+        inputCommand (SpecialKey KeyDown) Down = Just MovePacmanDown
+        inputCommand (SpecialKey KeyLeft) Down = Just MovePacmanLeft
+        inputCommand (SpecialKey KeyRight) Down = Just MovePacmanRight
         inputCommand _ _ = prevCommand
 
     modifyIORef inputRef (\_ -> inputCommand key state)

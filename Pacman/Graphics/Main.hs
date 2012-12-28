@@ -5,10 +5,11 @@ import Graphics.UI.GLUT
 
 import Data.IORef
 
-import qualified Pacman.Actors.Scene as Scene
+import Pacman.World
+import Pacman.Level
 
-import Pacman.Graphics.Pacman
-import Pacman.Graphics.Ghost
+--import Pacman.Graphics.Pacman
+--import Pacman.Graphics.Ghost
 import Pacman.Graphics.Level
 
 setWindowOptions :: IO()
@@ -23,16 +24,20 @@ setDrawingOptions =
     --blendFunc $= (SrcAlpha, OneMinusSrcAlpha)
     --lineSmooth $= Enabled
 
-render :: IORef Scene.Scene -> IO ()
-render sceneRef = do
-    scene <- readIORef sceneRef
+render :: IORef World -> IO ()
+render worldRef = do
+    world <- readIORef worldRef
 
     clear [ColorBuffer]
 
-    setProjection (Scene.width scene) (Scene.height scene)
+    let w = (*levelItemSize) . fromIntegral . levelWidth . worldLevel $ world
+        h = (*levelItemSize) . fromIntegral . levelHeight . worldLevel $ world
+
+
+    setProjection w h
     startDrawMode
 
-    renderScene scene
+    renderWorld world
 
     swapBuffers
 
@@ -47,8 +52,8 @@ startDrawMode = do
     matrixMode $= Modelview 0
     loadIdentity
 
-renderScene :: Scene.Scene -> IO ()
-renderScene scene = do
-    renderLevel (Scene.level scene) (Scene.elapsedTime scene)
-    renderPacman (Scene.pacman scene)
-    mapM_ (\(i, ghost) -> renderGhost ghost i) (zip [1..] (Scene.ghosts scene))
+renderWorld :: World -> IO ()
+renderWorld world = --do
+    renderLevel (worldLevel world) (worldElapsedTime world)
+    --renderPacman world
+    --renderGhosts world

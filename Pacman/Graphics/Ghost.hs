@@ -2,7 +2,7 @@ module Pacman.Graphics.Ghost (renderGhost) where
 
 import Graphics.Rendering.OpenGL
 
-import Pacman.Graphics.Base
+import Pacman.Graphics.Vertex
 
 import qualified Pacman.Actors.Types.Ghost as Ghost
 
