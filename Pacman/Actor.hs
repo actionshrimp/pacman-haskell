@@ -37,11 +37,11 @@ isTraversible (GHWall _) = False
 isTraversible GHGate = False
 isTraversible _ = True
 
-actorUpdate :: Float -> Maybe Coords -> Actor -> Actor
-actorUpdate dt maybeTargetDst a = Actor {
+actorUpdate :: Float -> Coords -> Maybe Coords -> Actor -> Actor
+actorUpdate dt levelSize maybeTargetDst a = Actor {
     actorId = actorId a,
-    actorSrc = newSrc,
-    actorDst = newDst,
+    actorSrc = newSrcWrapped,
+    actorDst = newDstWrapped,
     actorMoveParam = newMoveParam,
     actorTargetDstFn = actorTargetDstFn a
 } where
@@ -55,6 +55,13 @@ actorUpdate dt maybeTargetDst a = Actor {
            | otherwise = oldSrc
     newDst | newMoveParam < oldMoveParam = targetDst
            | otherwise = oldDst
+    direcVec = direcVecCoords newSrc newDst
+    newDstWrapped | fst newSrc > fst levelSize && (direcVec == (1, 0)) = (fst newDst - (fst levelSize + 2), snd newDst)
+                  | fst newSrc < 0 && (direcVec == (-1, 0)) = (fst newDst + (fst levelSize + 2), snd newDst)
+                  | otherwise = newDst
+    newSrcWrapped | fst newSrc > fst levelSize && (direcVec == (1, 0)) = (fst newSrc - (fst levelSize + 2), snd newSrc)
+                  | fst newSrc < 0 && (direcVec == (-1, 0))  = (fst newSrc + (fst levelSize + 2), snd newDst)
+                  | otherwise = newSrc
     targetDst = fromMaybe oldDst maybeTargetDst
 
 data LevelDataToken = PacmanToken | GhostToken
