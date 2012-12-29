@@ -5,6 +5,7 @@ import Graphics.UI.GLUT
 
 import Pacman.World
 import Pacman.Level
+import qualified Pacman.Engine as Engine
 
 import qualified Pacman.Graphics.Main as Graphics
 import qualified Pacman.Graphics.Level as LevelGraphics
@@ -57,7 +58,7 @@ update worldRef inputRef = do
     newTime <- get elapsedTime
     let dt = fromIntegral newTime / 1000.0 - worldElapsedTime world
 
-    --modifyIORef worldRef (\_ -> worldUpdate world dt input)
+    modifyIORef worldRef (\_ -> Engine.updateWorld dt input world)
 
     postRedisplay Nothing
 

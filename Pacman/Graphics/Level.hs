@@ -4,8 +4,11 @@ import qualified Data.Map as M
 
 import Graphics.Rendering.OpenGL hiding (R, Level)
 
-import Pacman.Graphics.Vertex
+import Pacman.World
 import Pacman.Level
+import Pacman.Effects
+
+import Pacman.Graphics.Vertex
 
 red :: Color3 GLfloat
 red = Color3 1 0 0 :: Color3 GLfloat
@@ -19,13 +22,18 @@ white = Color3 1 1 1 :: Color3 GLfloat
 levelItemSize :: Float
 levelItemSize = 26
 
-renderLevel :: Level -> Float -> IO ()
-renderLevel lvl t = do
-    let scaleForRender (cX, cY) = (fromIntegral cX * levelItemSize, fromIntegral cY * levelItemSize)
+renderLevel :: World -> IO ()
+renderLevel world = do
+    let 
+        lvl = worldLevel world
+        effects = worldEffects world
+        scaleForRender (cX, cY) = (fromIntegral cX * levelItemSize, fromIntegral cY * levelItemSize)
         items = M.foldWithKey (\coords item list -> (scaleForRender coords, item) : list) [] (levelItems lvl)
+        
+        pillPulsateParam = pillPulsateEffectValue . pillPulsateEffect $ effects
 
     mapM_ (uncurry renderStaticItem) items
-    mapM_ (uncurry (renderTimeVaryingItem t)) items
+    mapM_ (uncurry (renderPulsatingPill pillPulsateParam)) items
 
 renderStaticItem :: (Float, Float) -> LevelItem -> IO ()
 renderStaticItem dst (Wall direction) = do
@@ -59,11 +67,11 @@ renderStaticItem dst (Pickup Pill) = renderPill 3 dst
 
 renderStaticItem _ _ = return ()
 
-renderTimeVaryingItem :: Float -> (Float, Float) -> LevelItemT PickupType t t1 -> IO ()
-renderTimeVaryingItem t dst (Pickup PowerPill) = renderPill r_t dst where
-    r_t = 7 * (sin (5*t) ** 2) + 2
+renderPulsatingPill :: Float -> (Float, Float) -> LevelItemT PickupType t t1 -> IO ()
+renderPulsatingPill t dst (Pickup PowerPill) = renderPill r_t dst where
+    r_t = 7 * (t ** 2) + 2
 
-renderTimeVaryingItem _ _ _ = return ()
+renderPulsatingPill _ _ _ = return ()
 
 --(Wall thickness, Wall radius)
 wT ::  Float

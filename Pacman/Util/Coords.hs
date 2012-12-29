@@ -1,3 +1,17 @@
-module Pacman.Util.Coords (Coords) where
+module Pacman.Util.Coords (Coords, translateCoords, scaleCoords, negateCoords, direcVecCoords) where
+
+import Control.Arrow
 
 type Coords = (Int, Int)
+
+translateCoords :: Coords -> Coords -> Coords
+translateCoords (x, y) = (+ x) *** (+ y)
+
+scaleCoords :: Float -> Coords -> (Float, Float)
+scaleCoords r = ((*r) . fromIntegral) *** ((*r) . fromIntegral)
+
+negateCoords :: Coords -> Coords
+negateCoords (x, y) = (negate x, negate y)
+
+direcVecCoords :: Coords -> Coords -> Coords
+direcVecCoords src dst = translateCoords dst (negateCoords src)

@@ -8,9 +8,9 @@ import Data.IORef
 import Pacman.World
 import Pacman.Level
 
---import Pacman.Graphics.Pacman
---import Pacman.Graphics.Ghost
 import Pacman.Graphics.Level
+import Pacman.Graphics.Pacman
+--import Pacman.Graphics.Ghost
 
 setWindowOptions :: IO()
 setWindowOptions =
@@ -53,7 +53,6 @@ startDrawMode = do
     loadIdentity
 
 renderWorld :: World -> IO ()
-renderWorld world = --do
-    renderLevel (worldLevel world) (worldElapsedTime world)
-    --renderPacman world
-    --renderGhosts world
+renderWorld world = do
+    renderLevel world
+    renderPacman world
