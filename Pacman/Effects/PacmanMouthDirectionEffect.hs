@@ -33,5 +33,9 @@ pacmanMouthDirectionEffectUpdate actors dt prev = PacmanMouthDirectionEffect {
         newParamValue | newTargetDirection == prevTargetDirection = min 1 (prevParamValue + v * dt)
                       | otherwise = 0
         targetAngle = atan2 (fromIntegral . snd $ newTargetDirection) (fromIntegral . fst $ newTargetDirection)
-        lastAngle = atan2 (fromIntegral . snd $ newLastDirection) (fromIntegral . fst $ newLastDirection)
+        lastAngleAttempt = atan2 (fromIntegral . snd $ newLastDirection) (fromIntegral . fst $ newLastDirection)
+        --Prevent 3/4 turns due to atan2's -pi -> pi range.
+        lastAngle | targetAngle - lastAngleAttempt > pi = 3 * pi / 2
+                  | targetAngle - lastAngleAttempt < -pi = -pi
+                  | otherwise = lastAngleAttempt
         angle = lastAngle + newParamValue * (targetAngle - lastAngle)
