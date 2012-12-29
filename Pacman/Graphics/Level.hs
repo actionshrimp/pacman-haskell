@@ -7,6 +7,7 @@ import Graphics.Rendering.OpenGL hiding (R, Level)
 import Pacman.World
 import Pacman.Level
 import Pacman.Effects
+import Pacman.Effects.PillPulsateEffect
 
 import Pacman.Graphics.Vertex
 

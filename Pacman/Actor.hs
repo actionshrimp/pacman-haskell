@@ -46,7 +46,8 @@ actorUpdate dt maybeTargetDst a = Actor {
     actorTargetDstFn = actorTargetDstFn a
 } where
     oldMoveParam = actorMoveParam a
-    newMoveParam | oldMoveParam >= 1 = oldMoveParam - 1
+    newMoveParam | (targetDst == oldDst) && (oldMoveParam >= 1) = oldMoveParam
+                 | oldMoveParam >= 1 = oldMoveParam - 1
                  | otherwise = oldMoveParam + actorParamVelocity * dt
     oldSrc = actorSrc a
     oldDst = actorDst a

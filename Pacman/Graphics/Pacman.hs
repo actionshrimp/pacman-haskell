@@ -10,14 +10,10 @@ import Pacman.Util.Coords
 
 import Pacman.World
 import Pacman.Actor
-import Pacman.Effects
 
-deriveDirectionAngle :: Coords -> Float
-deriveDirectionAngle (1, 0) = 0
-deriveDirectionAngle (0, 1) = pi / 2
-deriveDirectionAngle (-1, 0) = pi
-deriveDirectionAngle (0, -1) = 3 * pi / 2
-deriveDirectionAngle _ = 0
+import Pacman.Effects
+import Pacman.Effects.PacmanMouthDirectionEffect
+import Pacman.Effects.PacmanMouthChompEffect
 
 renderPacman :: World -> IO ()
 renderPacman world = do
@@ -31,18 +27,14 @@ renderPacman world = do
         coords = translatePoint (scaleCoords moveParam direcCoords) (scaleCoords 1 srcCoords)
         (x, y) = scalePoint levelItemSize coords
 
-        --oldD = Pacman.prevDirection pacman
-        --newD = Pacman.direction pacman
-        --oldDA = directionAngle oldD
-        --newDA = directionAngle newD
-        --deltaDA | (oldD == DRight && newD == DDown) = - pi / 2
-        --        | (oldD == DDown && newD == DRight) = pi / 2
-        --        | otherwise = newDA - oldDA
-        --d = oldDA + deltaDA * (Pacman.directionChangeParam pacman)
-        --mouthAngle = Pacman.mouthAngle pacman
+        effects = worldEffects world
+        direcEffect = pacmanMouthDirectionEffect effects
+        directionAngle = pacmanMouthDirectionEffectAngleValue direcEffect
 
-        directionAngle = deriveDirectionAngle (direcVecCoords (actorSrc pacmanActor) (actorDst pacmanActor))
-        mouthAngle = pi / 8
+        chompEffect = pacmanMouthChompEffect effects
+        chompAngle = pacmanMouthChompEffectAngle chompEffect
+
+        mouthAngle = chompAngle
 
         r = 0.75
         points = (0, 0) : (map pacmanPoints [0, pi/64..2*pi])
