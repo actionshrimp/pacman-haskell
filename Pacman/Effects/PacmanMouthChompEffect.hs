@@ -26,9 +26,11 @@ pacmanMouthChompEffectUpdate actors dt prev = PacmanMouthChompEffect {
     moved = newMoveParam /= lastMoveParam
     prevAngle = pacmanMouthChompEffectAngle prev
     prevChompDirection = pacmanMouthChompEffectDirection prev
-    chompDirection | prevAngle >= maxAngle = -1
-                   | prevAngle <= 0 = 1
+    chompDirection | iterAngle >= maxAngle = -1
+                   | iterAngle <= 0 = 1
                    | otherwise = prevChompDirection
-    newAngle | moved && chompDirection > 0 = min maxAngle (prevAngle + v * dt * chompDirection)
-             | moved && chompDirection < 0 = max 0 (prevAngle + v * dt * chompDirection)
+    iterAngle = prevAngle + v * dt * prevChompDirection
+    newAngle | moved && iterAngle > maxAngle = maxAngle - (iterAngle - maxAngle)
+             | moved && iterAngle < 0 = negate iterAngle
+             | moved = iterAngle
              | otherwise = maxAngle / 2

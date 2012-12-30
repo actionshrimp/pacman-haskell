@@ -1,4 +1,4 @@
-module Pacman.Actor (ActorId, ActorIdT(..), GhostId(..), Actor(..), initialActors, actorWithId, actorUpdate) where
+module Pacman.Actor (ActorId, ActorIdT(..), GhostId(..), Actor(..), initialActors, actorWithId, actorUpdate, actorVelocity) where
 
 import Data.List
 import qualified Data.Map as M
@@ -29,7 +29,7 @@ actorWithId :: ActorId -> [Actor] -> Actor
 actorWithId aId actors = actor where
     Just actor = find (\a -> actorId a == aId) actors
 
-actorParamVelocity = 4
+actorVelocity = 4
 
 isTraversible :: LevelItem -> Bool
 isTraversible (Wall _) = False
@@ -48,7 +48,7 @@ actorUpdate dt levelSize maybeTargetDst a = Actor {
     oldMoveParam = actorMoveParam a
     newMoveParam | (targetDst == oldDst) && (oldMoveParam >= 1) = oldMoveParam
                  | oldMoveParam >= 1 = oldMoveParam - 1
-                 | otherwise = oldMoveParam + actorParamVelocity * dt
+                 | otherwise = oldMoveParam + actorVelocity * dt
     oldSrc = actorSrc a
     oldDst = actorDst a
     newSrc | newMoveParam < oldMoveParam = oldDst

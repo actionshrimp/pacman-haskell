@@ -36,7 +36,7 @@ initialEffects = Effects {
     pacmanMouthChompEffect = PacmanMouthChompEffect {
         pacmanMouthChompEffectAngle = 0,
         pacmanMouthChompEffectMaxAngle = pi / 4,
-        pacmanMouthChompEffectVelocity = (pi / 2) * 4,
+        pacmanMouthChompEffectVelocity = (pi / 2) * actorVelocity,
         pacmanMouthChompEffectMoveParamStore = 0,
         pacmanMouthChompEffectDirection = 1
     }
