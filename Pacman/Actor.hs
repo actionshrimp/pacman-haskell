@@ -91,7 +91,13 @@ initialActor aId levelData = Actor {
     tokenDst = (cols !! 1, rowIndex)
 
 initialActors :: [String] -> [Actor]
-initialActors levelData = initialActor Pacman levelData : [initialActor (Ghost GhostA) levelData]
+initialActors levelData = [
+    initialActor Pacman levelData,
+    initialActor (Ghost GhostA) levelData,
+    initialActor (Ghost GhostB) levelData,
+    initialActor (Ghost GhostC) levelData,
+    initialActor (Ghost GhostD) levelData
+    ]
 
 pacmanTargetDstFn :: Maybe InputCommand -> [Actor] -> Level -> Actor -> Maybe Coords
 pacmanTargetDstFn (Just cmd) _ level a | isTraversible targetItem = Just targetDst
@@ -118,3 +124,4 @@ sameDirecTargetDstFn level a | isTraversible targetItem = Just targetDst
                                 direcVec = translateCoords (actorDst a) (negateCoords . actorSrc $ a)
                                 targetDst = translateCoords (actorDst a) direcVec
                                 Just targetItem = M.lookup targetDst (levelItems level)
+                                

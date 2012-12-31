@@ -18,6 +18,6 @@ initializeWorld levelData = World {
     worldElapsedTime = 0.0,
     worldActors = initialActors levelData,
     worldEffects = initialEffects,
-    worldStates = [],
+    worldStates = initialGameStates,
     worldLevel = loadLevel levelData
 }

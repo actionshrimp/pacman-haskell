@@ -1,17 +1,51 @@
-module Pacman.Graphics.Ghost (renderGhost) where
+module Pacman.Graphics.Ghost (renderGhosts) where
+
+import Data.List
 
 import Graphics.Rendering.OpenGL
 
+import Pacman.Util.Coords
+
+import Pacman.World
+import Pacman.Actor
+
+import Pacman.Effects
+import Pacman.Effects.GhostFrillEffect
+import Pacman.Effects.GhostEyesEffect
+
 import Pacman.Graphics.Vertex
+import Pacman.Graphics.Level
 
-import qualified Pacman.Actors.Types.Ghost as Ghost
-
-renderGhost :: Ghost.Ghost -> Int -> IO ()
-renderGhost ghost i = do
+renderGhosts :: World -> IO ()
+renderGhosts world = do
     let
-        (x, y) = Ghost.position ghost
+        actors = worldActors world
+        effects = worldEffects world
+        rG = renderGhost actors effects
 
-        r = 20
+    rG GhostA
+    rG GhostB
+    rG GhostC
+    rG GhostD
+
+renderGhost :: [Actor] -> Effects -> GhostId -> IO ()
+renderGhost actors effects gId = do
+    let
+        ghostActor = actorWithId (Ghost gId) actors
+        srcCoords = actorSrc ghostActor
+        dstCoords = actorDst ghostActor
+        direcCoords = direcVecCoords srcCoords dstCoords
+        moveParam = actorMoveParam ghostActor
+        coords = translatePoint (scaleCoords moveParam direcCoords) (scaleCoords 1 srcCoords)
+        (x, y) = scalePoint levelItemSize coords
+
+        frillEffect = ghostFrillEffect effects
+        frillParam = ghostFrillEffectValue frillEffect
+
+        Just eyesEffect = find (\x -> ghostEyesEffectGhostId x == gId) (ghostEyesEffects effects)
+        eyesPos = ghostEyesEffectPosition eyesEffect
+
+        r = 20 :: Float
         fanPoints = (x, y) : map (\a -> (x + r * cos a, y + r * sin a)) [0, pi/64..pi]
         fanVertices = map pointToVertex fanPoints
 
@@ -23,8 +57,8 @@ renderGhost ghost i = do
 
         frillWave t u = y - (3*r/4) - (r/4) * sin ((pi * u / (2 * r / 3)) - (4 * t)) ^ (2 :: Integer)
 
-        frillPeaks = zip frillXSamples (map (frillWave (pi * Ghost.wobbleParam ghost)) frillXSamples)
-        frillPeaksFade = zip frillXSamples (map (frillWave (negate pi * Ghost.wobbleParam ghost)) frillXSamples)
+        frillPeaks = zip frillXSamples (map (frillWave (pi * frillParam)) frillXSamples)
+        frillPeaksFade = zip frillXSamples (map (frillWave (negate pi * frillParam)) frillXSamples)
 
         frillPoints = concat $ zipWith (\pX pY -> [pX, pY]) frillBaseline frillPeaks
         frillPointsFade = concat $ zipWith (\pX pY -> [pX, pY]) frillBaseline frillPeaksFade
@@ -35,8 +69,8 @@ renderGhost ghost i = do
         outlineR = r / 2.2
         whiteR = r / 2.5
         spaceX = r / 2.9
-        offX = (fst . Ghost.eyePosition $ ghost) * r / 10 
-        offY = (r / 6) + (snd . Ghost.eyePosition $ ghost) * r / 6
+        offX = (fst eyesPos) * r / 10 
+        offY = (r / 6) + (snd eyesPos) * r / 6
         
         lEyeOutline = (x - spaceX + offX, y + offY) : map (\a -> ((x - spaceX + offX) + (7 * outlineR / 8) * cos a, y + offY + outlineR * sin a)) [0, pi/16..2*pi]
         rEyeOutline = map (\a -> ((x + spaceX + offX) + (7 * outlineR / 8) * cos a, y + offY + outlineR * sin a)) [0, pi/16..2*pi]
@@ -49,24 +83,24 @@ renderGhost ghost i = do
         rEyeWhiteVertices = map pointToVertex rEyeWhite
 
         pupilR = r / 6
-        pupilOffX = (fst . Ghost.eyePosition $ ghost) * r / 4
-        pupilOffY = (snd . Ghost.eyePosition $ ghost) * r / 5
+        pupilOffX = (fst eyesPos) * r / 4
+        pupilOffY = (snd eyesPos) * r / 5
         lPupil = map (\a -> ((x - spaceX + pupilOffX) + pupilR * cos a, y + offY + pupilOffY + pupilR * sin a)) [0, pi/16..2*pi]
         rPupil = map (\a -> ((x + spaceX + pupilOffX) + pupilR * cos a, y + offY + pupilOffY + pupilR * sin a)) [0, pi/16..2*pi]
         lPupilVertices = map pointToVertex lPupil
         rPupilVertices = map pointToVertex rPupil
 
-        drawColor = case i of 
-            1 -> Color3 1  0   0 :: Color3 GLfloat
-            2 -> Color3 1  0.4 1 :: Color3 GLfloat
-            3 -> Color3 0  1   1 :: Color3 GLfloat
-            4 -> Color3 1  0.6 0 :: Color3 GLfloat
+        drawColor = case gId of 
+            GhostA -> Color3 1  0   0 :: Color3 GLfloat
+            GhostB -> Color3 1  0.4 1 :: Color3 GLfloat
+            GhostC -> Color3 0  1   1 :: Color3 GLfloat
+            GhostD -> Color3 1  0.6 0 :: Color3 GLfloat
 
-        fadeColor = case i of
-            1 -> Color3 0.5  0   0   :: Color3 GLfloat
-            2 -> Color3 0.5  0.2 0.5 :: Color3 GLfloat
-            3 -> Color3 0    0.5 0.5 :: Color3 GLfloat
-            4 -> Color3 0.5  0.3 0   :: Color3 GLfloat
+        fadeColor = case gId of
+            GhostA -> Color3 0.5  0   0   :: Color3 GLfloat
+            GhostB -> Color3 0.5  0.2 0.5 :: Color3 GLfloat
+            GhostC -> Color3 0    0.5 0.5 :: Color3 GLfloat
+            GhostD -> Color3 0.5  0.3 0   :: Color3 GLfloat
 
         white = (Color3 1 1 1 :: Color3 GLfloat)
         black = (Color3 0 0 0 :: Color3 GLfloat)

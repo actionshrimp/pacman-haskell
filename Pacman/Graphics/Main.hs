@@ -10,7 +10,7 @@ import Pacman.Level
 
 import Pacman.Graphics.Level
 import Pacman.Graphics.Pacman
---import Pacman.Graphics.Ghost
+import Pacman.Graphics.Ghost
 
 setWindowOptions :: IO()
 setWindowOptions =
@@ -56,3 +56,4 @@ renderWorld :: World -> IO ()
 renderWorld world = do
     renderLevel world
     renderPacman world
+    renderGhosts world
