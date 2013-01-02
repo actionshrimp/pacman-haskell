@@ -1,4 +1,4 @@
-module Pacman.Actor (ActorId, ActorIdT(..), GhostId(..), Actor(..), initialActors, actorWithId, actorUpdate, actorVelocity) where
+module Pacman.Actor (ActorId, ActorIdT(..), GhostId(..), Actor(..), initialActors, actorWithId, actorVelocity) where
 
 import Data.List
 import qualified Data.Map as M
@@ -22,13 +22,15 @@ data Actor = Actor {
     actorSrc :: Coords, 
     actorDst :: Coords,
     actorMoveParam :: Float,
-    actorTargetDstFn :: Maybe InputCommand -> [Actor] -> Level -> Actor -> Maybe Coords
+    actorTargetDstFn :: Coords -> [Actor] -> Level -> Actor -> Coords
 }
 
 actorWithId :: ActorId -> [Actor] -> Actor
 actorWithId aId actors = actor where
     Just actor = find (\a -> actorId a == aId) actors
 
+--Number of game tiles moved per second
+actorVelocity :: Float
 actorVelocity = 4
 
 isTraversible :: LevelItem -> Bool
@@ -36,33 +38,6 @@ isTraversible (Wall _) = False
 isTraversible (GHWall _) = False
 isTraversible GHGate = False
 isTraversible _ = True
-
-actorUpdate :: Float -> Coords -> Maybe Coords -> Actor -> Actor
-actorUpdate dt levelSize maybeTargetDst a = Actor {
-    actorId = actorId a,
-    actorSrc = newSrcWrapped,
-    actorDst = newDstWrapped,
-    actorMoveParam = newMoveParam,
-    actorTargetDstFn = actorTargetDstFn a
-} where
-    oldMoveParam = actorMoveParam a
-    newMoveParam | (targetDst == oldDst) && (oldMoveParam >= 1) = oldMoveParam
-                 | oldMoveParam >= 1 = oldMoveParam - 1
-                 | otherwise = oldMoveParam + actorVelocity * dt
-    oldSrc = actorSrc a
-    oldDst = actorDst a
-    newSrc | newMoveParam < oldMoveParam = oldDst
-           | otherwise = oldSrc
-    newDst | newMoveParam < oldMoveParam = targetDst
-           | otherwise = oldDst
-    direcVec = direcVecCoords newSrc newDst
-    newDstWrapped | fst newSrc > fst levelSize && (direcVec == (1, 0)) = (fst newDst - (fst levelSize + 2), snd newDst)
-                  | fst newSrc < 0 && (direcVec == (-1, 0)) = (fst newDst + (fst levelSize + 2), snd newDst)
-                  | otherwise = newDst
-    newSrcWrapped | fst newSrc > fst levelSize && (direcVec == (1, 0)) = (fst newSrc - (fst levelSize + 2), snd newSrc)
-                  | fst newSrc < 0 && (direcVec == (-1, 0))  = (fst newSrc + (fst levelSize + 2), snd newDst)
-                  | otherwise = newSrc
-    targetDst = fromMaybe oldDst maybeTargetDst
 
 data LevelDataToken = PacmanToken | GhostToken
 
@@ -99,29 +74,16 @@ initialActors levelData = [
     initialActor (Ghost GhostD) levelData
     ]
 
-pacmanTargetDstFn :: Maybe InputCommand -> [Actor] -> Level -> Actor -> Maybe Coords
-pacmanTargetDstFn (Just cmd) _ level a | isTraversible targetItem = Just targetDst
-                                            | otherwise = sameDirecTargetDstFn level a
-                            where 
-                                targetDst = translateCoords (moveCmdVec cmd) (actorDst a)
-                                targetItem = fromMaybe Blank (M.lookup targetDst (levelItems level))
+pacmanTargetDstFn :: Coords -> [Actor] -> Level -> Actor -> Coords
+pacmanTargetDstFn inputPacDir actors level a = translateCoords (actorDst a) inputPacDir
 
-pacmanTargetDstFn Nothing _ level a = sameDirecTargetDstFn level a
+ghostTargetDstFn :: Coords -> [Actor] -> Level -> Actor -> Coords
+ghostTargetDstFn = pacmanTargetDstFn
 
-moveCmdVec :: InputCommand -> Coords
-moveCmdVec MovePacmanUp    = (0, 1)
-moveCmdVec MovePacmanDown  = (0, -1)
-moveCmdVec MovePacmanLeft  = (-1, 0)
-moveCmdVec MovePacmanRight = (1, 0)
-
-ghostTargetDstFn :: Maybe InputCommand -> [Actor] -> Level -> Actor -> Maybe Coords
-ghostTargetDstFn _ _ level a = sameDirecTargetDstFn level a
-
-sameDirecTargetDstFn :: Level -> Actor -> Maybe Coords
-sameDirecTargetDstFn level a | isTraversible targetItem = Just targetDst
-                             | otherwise = Nothing
-                             where
-                                direcVec = translateCoords (actorDst a) (negateCoords . actorSrc $ a)
-                                targetDst = translateCoords (actorDst a) direcVec
-                                Just targetItem = M.lookup targetDst (levelItems level)
-                                
+--sameDirecTargetDstFn :: Level -> Actor -> Maybe Coords
+--sameDirecTargetDstFn level a | isTraversible targetItem = Just targetDst
+--                             | otherwise = Nothing
+--                             where
+--                                direcVec = translateCoords (actorDst a) (negateCoords . actorSrc $ a)
+--                                targetDst = translateCoords (actorDst a) direcVec
+--                                Just targetItem = M.lookup targetDst (levelItems level)

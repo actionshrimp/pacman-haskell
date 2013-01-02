@@ -1,4 +1,4 @@
-module Pacman.Effects (Effects(..), initialEffects, effectsUpdate) where
+module Pacman.Effects (Effects(..), initialEffects) where
 
 import Pacman.Actor
 
@@ -14,15 +14,6 @@ data Effects = Effects {
     pacmanMouthChompEffect :: PacmanMouthChompEffect,
     ghostFrillEffect :: GhostFrillEffect,
     ghostEyesEffects :: [GhostEyesEffect]
-}
-
-effectsUpdate ::  [Actor] -> Float -> Effects -> Effects
-effectsUpdate actors dt effects = Effects {
-    pillPulsateEffect = pillPulsateEffectUpdate dt (pillPulsateEffect effects),
-    pacmanMouthDirectionEffect = pacmanMouthDirectionEffectUpdate actors dt (pacmanMouthDirectionEffect effects),
-    pacmanMouthChompEffect = pacmanMouthChompEffectUpdate actors dt (pacmanMouthChompEffect effects),
-    ghostFrillEffect = ghostFrillEffectUpdate dt (ghostFrillEffect effects),
-    ghostEyesEffects = map (ghostEyesEffectUpdate actors dt) (ghostEyesEffects effects)
 }
 
 initialEffects ::  Effects

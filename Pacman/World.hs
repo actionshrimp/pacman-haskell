@@ -1,5 +1,7 @@
 module Pacman.World (World(..), initializeWorld) where
 
+import Pacman.Util.Coords
+
 import Pacman.Actor
 import Pacman.Level
 import Pacman.Effects
@@ -10,7 +12,8 @@ data World = World {
     worldActors :: [Actor], --Actors moving around in the world
     worldEffects :: Effects, -- Effects (params used mostly for animation)
     worldStates :: [GameState], -- Transient gameplay states (gate open/closed, ghosts fleeing etc.)
-    worldLevel :: Level -- The static level items (which actors can potentially interact with)
+    worldLevel :: Level, -- The static level items (which actors can potentially interact with)
+    worldPacmanInputDirection :: Coords --The direction the player 
 }
 
 initializeWorld ::  [String] -> World
@@ -19,5 +22,6 @@ initializeWorld levelData = World {
     worldActors = initialActors levelData,
     worldEffects = initialEffects,
     worldStates = initialGameStates,
-    worldLevel = loadLevel levelData
+    worldLevel = loadLevel levelData,
+    worldPacmanInputDirection = (1, 0)
 }

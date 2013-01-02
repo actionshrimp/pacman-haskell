@@ -1,8 +1,8 @@
-module Pacman.GameState (GameStateId, GameStateIdT(..), GameState(..), initialGameStates) where
+module Pacman.GameState (GameStateId, GameStateIdT(..), GameState(..), initialGameStates, zeroTimeState) where
 
 import Pacman.Actor
 
-data GameStateIdT a = Starting | PacmanDead | GhostWaiting a | GhostActivating a | GhostReturningHome a | GhostsFleeing
+data GameStateIdT a = Starting | PacmanDead | GhostWaiting a | GhostActivating a | GhostReturningHome a | GhostsFleeing | ZeroTime deriving (Eq)
 
 type GameStateId = GameStateIdT GhostId
 
@@ -26,3 +26,9 @@ initialGameStates = [
         gameStateRemainingTime = 30
         }
     ]
+
+zeroTimeState ::  GameState
+zeroTimeState = GameState {
+    gameStateId = ZeroTime,
+    gameStateRemainingTime = 0
+}
