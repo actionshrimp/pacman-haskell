@@ -1,4 +1,4 @@
-module Pacman.Actor (ActorId, ActorIdT(..), GhostId(..), Actor(..), initialActors, actorWithId, actorVelocity) where
+module Pacman.Actor (ActorId, ActorIdT(..), GhostId(..), Actor(..), initialActors, actorWithId, actorVelocity, actorTargetDst) where
 
 import Data.List
 
@@ -16,8 +16,7 @@ data Actor = Actor {
     actorId :: ActorId,
     actorSrc :: Coords, 
     actorDst :: Coords,
-    actorMoveParam :: Float,
-    actorTargetDstFn :: Coords -> [Actor] -> Actor -> Coords
+    actorMoveParam :: Float
 }
 
 actorWithId :: ActorId -> [Actor] -> Actor
@@ -43,11 +42,8 @@ initialActor aId levelData = Actor {
     actorId = aId,
     actorSrc = tokenSrc,
     actorDst = tokenDst,
-    actorMoveParam = 0.5,
-    actorTargetDstFn = targetDstFn
+    actorMoveParam = 0.5
 } where
-    targetDstFn | aId == Pacman = pacmanTargetDstFn
-                | otherwise = ghostTargetDstFn
     char = tokenLevelDataChar . idToLevelDataToken $ aId
     Just rowIndex = findIndex (\row -> char `elem` row) levelData
     cols = elemIndices char (levelData !! rowIndex)
@@ -63,8 +59,6 @@ initialActors levelData = [
     initialActor (Ghost GhostD) levelData
     ]
 
-pacmanTargetDstFn :: Coords -> [Actor] -> Actor -> Coords
-pacmanTargetDstFn inputPacDir actors a = translateCoords (actorDst a) inputPacDir
-
-ghostTargetDstFn :: Coords -> [Actor] -> Actor -> Coords
-ghostTargetDstFn _ actors a = actorDst (actorWithId Pacman actors)
+actorTargetDst :: Coords -> [Actor] -> Actor -> Coords
+actorTargetDst inputPacDir _ (Actor Pacman _ dst _) = translateCoords dst inputPacDir
+actorTargetDst _ actors (Actor (Ghost _) _ _ _) = actorDst (actorWithId Pacman actors)

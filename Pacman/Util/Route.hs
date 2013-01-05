@@ -17,16 +17,19 @@ data RouteNode = RouteNode {
     score :: Int
 } deriving (Eq, Show)
 
-calculateActorRoute :: Level -> Actor -> Coords -> [Coords]
-calculateActorRoute level actor targetCoords = buildRouteFromNodes (fromMaybe initialNode route) where
+calculateActorRoute :: Level -> Actor -> Coords -> Maybe [Coords]
+calculateActorRoute level actor targetCoords = fullRouteTail where
+    fullRouteTail = fmap tail fullRoute
+    fullRoute = fmap buildRouteFromNode calculatedNode
+    calculatedNode = calculateRoute nApplied targetCoords initialOpenList [initialNode]
     nApplied = neighbourNodes level actor targetCoords
-    route = calculateRoute nApplied targetCoords initialOpenList [initialNode]
     initialOpenList = nApplied initialNode
     initialNode = RouteNode {
             coords = actorDst actor,
             parent = Nothing,
             score = 0 }
 
+--Calculate the route to the target square if one exists
 calculateRoute :: (RouteNode -> [RouteNode]) -> Coords -> [RouteNode] -> [RouteNode] -> Maybe RouteNode
 calculateRoute neighbourFn targetCoords openList closedList 
                 | targetCoordsInClosedList = find isTargetNode closedList
@@ -44,10 +47,11 @@ calculateRoute neighbourFn targetCoords openList closedList
                         lowestNode bs a = if score a < score b then a else b where
                             b = fromMaybe a (find (\n -> coords n == coords a) bs)
 
-buildRouteFromNodes :: RouteNode -> [Coords]
-buildRouteFromNodes node = forParent (parent node) ++ [coords node] where
+--Build the full route, including the starting node
+buildRouteFromNode :: RouteNode -> [Coords]
+buildRouteFromNode node = forParent (parent node) ++ [coords node] where
     forParent Nothing = []
-    forParent (Just n) = buildRouteFromNodes n
+    forParent (Just n) = buildRouteFromNode n
 
 neighbourNodes :: Level -> Actor -> Coords -> RouteNode -> [RouteNode]
 neighbourNodes level actor targetCoords curNode = 
