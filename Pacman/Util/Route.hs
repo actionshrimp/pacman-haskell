@@ -63,11 +63,11 @@ neighbourNodes level actor targetCoords curNode =
                                | otherwise = [] where
                                     curCoords = coords curNode
                                     (unwrappedAttemptX, attemptY) = translateCoords curCoords direc
-                                    attemptX | unwrappedAttemptX > levelWidth level = unwrappedAttemptX - levelWidth level
+                                    attemptX | unwrappedAttemptX >= levelWidth level = unwrappedAttemptX - levelWidth level
                                              | unwrappedAttemptX < 0 = unwrappedAttemptX + levelWidth level
                                              | otherwise = unwrappedAttemptX
                                     attemptCoords = (attemptX, attemptY)
-                                    attemptScore = score curNode + straightLineScore curCoords targetCoords
+                                    attemptScore = score curNode + straightLineScore attemptCoords targetCoords
                                     attemptNode = RouteNode {
                                         coords = attemptCoords,
                                         parent = Just curNode,
@@ -76,8 +76,8 @@ neighbourNodes level actor targetCoords curNode =
 
 --Whether a level item is traversable, but also prevent ghosts from flipping direction
 canWalk :: Level -> Actor -> Coords -> Bool
-canWalk level actor coords | actorId actor /= Pacman && coords == actorSrc actor = False
-                           | otherwise = isTraversable level coords
+canWalk level actor c | actorId actor /= Pacman && c == actorSrc actor = False
+                      | otherwise = isTraversable level c
 
 straightLineScore :: Coords -> Coords -> Int
 straightLineScore start end = (abs . fst $ straightLineCoords start end) + (abs . snd $ straightLineCoords start end) where

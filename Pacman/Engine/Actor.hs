@@ -10,8 +10,6 @@ import Pacman.Level
 import Pacman.GameState
 import Pacman.Actor
 
-import Pacman.InputCommand
-
 actorsUpdate :: Float -> Coords -> Level -> [GameState] -> [Actor] -> [Actor]
 actorsUpdate dt inputPacDir level states actors = updatedActors where
     (activeActors, inactiveActors) = partition (actorIsActive states) actors
@@ -35,35 +33,34 @@ isActivatingGhost _ _ = False
 actorUpdate :: Float -> Level -> Coords -> Actor -> Actor
 actorUpdate dt level targetDst a = Actor {
     actorId = actorId a,
-    actorSrc = newSrcWrapped,
-    actorDst = newDstWrapped,
+    actorSrc = newSrc,
+    actorDst = newDst,
     actorMoveParam = newMoveParam
 } where
     oldMoveParam = actorMoveParam a
-    newMoveParam | (targetDst == oldDst) && (oldMoveParam >= 1) = oldMoveParam
-                 | oldMoveParam >= 1 = oldMoveParam - 1
+    newMoveParam | oldMoveParam >= 1 = oldMoveParam - 1
                  | otherwise = oldMoveParam + actorVelocity * dt
     oldSrc = actorSrc a
     oldDst = actorDst a
     newSrc | newMoveParam < oldMoveParam = oldDst
            | otherwise = oldSrc
-    newDst | newMoveParam < oldMoveParam = actorNextSquare level a targetDst
+    newDst | newMoveParam < oldMoveParam = nextSquare
            | otherwise = oldDst
-    direcVec = direcVecCoords newSrc newDst
-    levelW = levelWidth level
-    --'Wrapped' functions allow the tunnel to work - the actor loops round in the X direction
-    newDstWrapped | fst newSrc > levelW && (direcVec == (1, 0)) = (fst newDst - levelW, snd newDst)
-                  | fst newSrc < 0 && (direcVec == (-1, 0)) = (fst newDst + levelW, snd newDst)
-                  | otherwise = newDst
-    newSrcWrapped | fst newSrc > levelW && (direcVec == (1, 0)) = (fst newSrc - levelW, snd newSrc)
-                  | fst newSrc < 0 && (direcVec == (-1, 0))  = (fst newSrc + levelW, snd newDst)
-                  | otherwise = newSrc
+    nextSquare = actorNextSquare level a targetSquare
+    targetSquare = wrapAroundX level targetDst
 
 actorNextSquare :: Level -> Actor -> Coords -> Coords
 actorNextSquare level a target = nextSquare where
-    nextSquare = case targetRoute of
-                    Nothing -> if isTraversable level nextSquareInSameDirection then nextSquareInSameDirection else actorDst a
-                    Just route -> head route
-    targetRoute = calculateActorRoute level a target
-    nextSquareInSameDirection = translateCoords (actorDst a) direcVec
+    nextSquare = if null calculatedRoute then nextSquareForNoRoute else head calculatedRoute
+    calculatedRoute = fromMaybe [] (calculateActorRoute level a target)
+    nextSquareForNoRoute = if isTraversable level nextSquareInSameDirection
+                           then nextSquareInSameDirection
+                           else actorDst a
+    nextSquareInSameDirection = wrapAroundX level (translateCoords (actorDst a) direcVec)
     direcVec = direcVecCoords (actorSrc a) (actorDst a)
+
+wrapAroundX :: Level -> Coords -> Coords
+wrapAroundX level (x, y) | x >= w = (x - w, y)
+                         | x < 0 = (x + w, y)
+                         | otherwise = (x, y) 
+                         where w = levelWidth level
