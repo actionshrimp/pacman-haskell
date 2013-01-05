@@ -5,10 +5,13 @@ module Pacman.Level (
     LevelItemT(..),
     LevelItem,
     Level(..),
-    loadLevel
+    loadLevel,
+    isTraversable
 ) where
 
 import qualified Data.Map as M
+import Data.Maybe
+
 import Pacman.Util.Coords
 
 data PickupType = Pill | PowerPill | Cherry
@@ -123,5 +126,14 @@ wallDirectionFromNeighbours LevelItemWithNeighbours {
     item = GHWall H, nL = GHWall H, nU = GHWall H } = GHWall DR
 wallDirectionFromNeighbours LevelItemWithNeighbours {
     item = GHWall H, nR = GHWall H, nU = GHWall H } = GHWall DL
-
 wallDirectionFromNeighbours i = item i
+
+isTraversableItem :: LevelItem -> Bool
+isTraversableItem (Wall _) = False
+isTraversableItem (GHWall _) = False
+isTraversableItem GHGate = False
+isTraversableItem _ = True
+
+isTraversable :: Level -> Coords -> Bool
+isTraversable level coords = isTraversableItem i where
+    i = fromMaybe (Wall C) (M.lookup coords (levelItems level))

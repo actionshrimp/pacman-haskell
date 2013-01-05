@@ -1,13 +1,8 @@
 module Pacman.Actor (ActorId, ActorIdT(..), GhostId(..), Actor(..), initialActors, actorWithId, actorVelocity) where
 
 import Data.List
-import qualified Data.Map as M
-import Data.Maybe
 
 import Pacman.Util.Coords
-import Pacman.InputCommand
-
-import Pacman.Level
 
 data ActorIdT a = Pacman | Ghost a deriving (Eq)
 data GhostId = GhostA | GhostB | GhostC | GhostD deriving (Eq)
@@ -22,7 +17,7 @@ data Actor = Actor {
     actorSrc :: Coords, 
     actorDst :: Coords,
     actorMoveParam :: Float,
-    actorTargetDstFn :: Coords -> [Actor] -> Level -> Actor -> Coords
+    actorTargetDstFn :: Coords -> [Actor] -> Actor -> Coords
 }
 
 actorWithId :: ActorId -> [Actor] -> Actor
@@ -32,12 +27,6 @@ actorWithId aId actors = actor where
 --Number of game tiles moved per second
 actorVelocity :: Float
 actorVelocity = 4
-
-isTraversible :: LevelItem -> Bool
-isTraversible (Wall _) = False
-isTraversible (GHWall _) = False
-isTraversible GHGate = False
-isTraversible _ = True
 
 data LevelDataToken = PacmanToken | GhostToken
 
@@ -74,16 +63,8 @@ initialActors levelData = [
     initialActor (Ghost GhostD) levelData
     ]
 
-pacmanTargetDstFn :: Coords -> [Actor] -> Level -> Actor -> Coords
-pacmanTargetDstFn inputPacDir actors level a = translateCoords (actorDst a) inputPacDir
+pacmanTargetDstFn :: Coords -> [Actor] -> Actor -> Coords
+pacmanTargetDstFn inputPacDir actors a = translateCoords (actorDst a) inputPacDir
 
-ghostTargetDstFn :: Coords -> [Actor] -> Level -> Actor -> Coords
-ghostTargetDstFn = pacmanTargetDstFn
-
---sameDirecTargetDstFn :: Level -> Actor -> Maybe Coords
---sameDirecTargetDstFn level a | isTraversible targetItem = Just targetDst
---                             | otherwise = Nothing
---                             where
---                                direcVec = translateCoords (actorDst a) (negateCoords . actorSrc $ a)
---                                targetDst = translateCoords (actorDst a) direcVec
---                                Just targetItem = M.lookup targetDst (levelItems level)
+ghostTargetDstFn :: Coords -> [Actor] -> Actor -> Coords
+ghostTargetDstFn _ actors a = actorDst (actorWithId Pacman actors)
