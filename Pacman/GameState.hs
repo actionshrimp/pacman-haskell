@@ -2,7 +2,7 @@ module Pacman.GameState (GameStateId, GameStateIdT(..), GameState(..), initialGa
 
 import Pacman.Actor
 
-data GameStateIdT a = Starting | PacmanDead | GhostWaiting a | GhostActivating a | GhostReturningHome a | GhostsFleeing | ZeroTime deriving (Eq)
+data GameStateIdT a = Starting | PacmanDead | GhostWaiting a | GhostActivating a | GhostReturningHome a | GhostScattering a | GhostFleeing a | ZeroTime deriving (Eq)
 
 type GameStateId = GameStateIdT GhostId
 
@@ -15,15 +15,15 @@ initialGameStates ::  [GameState]
 initialGameStates = [
     GameState {
         gameStateId = GhostWaiting GhostB,
-        gameStateRemainingTime = 10
+        gameStateRemainingTime = 5
         },
     GameState {
         gameStateId = GhostWaiting GhostC,
-        gameStateRemainingTime = 20
+        gameStateRemainingTime = 10
         },
     GameState {
         gameStateId = GhostWaiting GhostD,
-        gameStateRemainingTime = 30
+        gameStateRemainingTime = 15
         }
     ]
 

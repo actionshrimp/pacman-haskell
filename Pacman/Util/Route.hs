@@ -17,11 +17,11 @@ data RouteNode = RouteNode {
     score :: Int
 } deriving (Eq, Show)
 
-calculateActorRoute :: Level -> Actor -> Coords -> Maybe [Coords]
+calculateActorRoute :: Level -> Actor -> Coords -> [Coords]
 calculateActorRoute level actor targetCoords = fullRouteTail where
-    fullRouteTail = fmap tail fullRoute
-    fullRoute = fmap buildRouteFromNode calculatedNode
-    calculatedNode = calculateRoute nApplied targetCoords initialOpenList [initialNode]
+    fullRouteTail = tail fullRoute
+    fullRoute = buildRouteFromNode calculatedNode
+    calculatedNode = calculateRoute nApplied targetCoords initialOpenList []
     nApplied = neighbourNodes level actor targetCoords
     initialOpenList = nApplied initialNode
     initialNode = RouteNode {
@@ -30,11 +30,12 @@ calculateActorRoute level actor targetCoords = fullRouteTail where
             score = 0 }
 
 --Calculate the route to the target square if one exists
-calculateRoute :: (RouteNode -> [RouteNode]) -> Coords -> [RouteNode] -> [RouteNode] -> Maybe RouteNode
+calculateRoute :: (RouteNode -> [RouteNode]) -> Coords -> [RouteNode] -> [RouteNode] -> RouteNode
 calculateRoute neighbourFn targetCoords openList closedList 
-                | targetCoordsInClosedList = find isTargetNode closedList
-                | null openList = Nothing
+                | targetCoordsInClosedList = targetNode
+                | null openList = minimumBy (compare `on` score) closedList
                 | otherwise = calculateRoute neighbourFn targetCoords newOpenList newClosedList where
+                    Just targetNode = find isTargetNode closedList
                     isTargetNode n = coords n == targetCoords
                     targetCoordsInClosedList = any isTargetNode closedList
                     newOpenList = combineOpenNodes remainingOpenNodes newOpenNodes

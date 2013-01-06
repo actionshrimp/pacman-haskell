@@ -14,4 +14,6 @@ negateCoords :: Coords -> Coords
 negateCoords (x, y) = (negate x, negate y)
 
 direcVecCoords :: Coords -> Coords -> Coords
-direcVecCoords src dst = translateCoords dst (negateCoords src)
+direcVecCoords src dst | abs baseX > 1 = (negate baseX `div` abs baseX, baseY)
+                       | otherwise = (baseX, baseY) where
+    (baseX, baseY) = translateCoords dst (negateCoords src)

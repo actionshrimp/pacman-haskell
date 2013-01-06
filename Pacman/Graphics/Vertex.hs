@@ -10,11 +10,11 @@ import Graphics.Rendering.OpenGL
 
 actorPositionPoint :: Float -> Actor -> (Float, Float)
 actorPositionPoint levelItemSize a = p where
-    srcCoords = actorSrc a
-    dstCoords = actorDst a
-    direcCoords = direcVecCoords srcCoords dstCoords
+    s = actorSrc a
+    d = actorDst a
+    direcCoords = direcVecCoords s d
     moveParam = actorMoveParam a
-    coords = translatePoint (scaleCoords moveParam direcCoords) (scaleCoords 1 srcCoords)
+    coords = translatePoint (scaleCoords moveParam direcCoords) (scaleCoords 1 s)
     p = scalePoint levelItemSize coords
 
 pointToVertex :: (Float, Float) -> Vertex3 GLfloat

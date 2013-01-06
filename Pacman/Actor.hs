@@ -1,4 +1,4 @@
-module Pacman.Actor (ActorId, ActorIdT(..), GhostId(..), Actor(..), initialActors, actorWithId, actorVelocity, actorTargetDst) where
+module Pacman.Actor (Actor(..), ActorIdT(..), GhostId(..), ActorId, actorVelocity, actorWithId, initialActors, ghostTargetDst) where
 
 import Data.List
 
@@ -59,6 +59,32 @@ initialActors levelData = [
     initialActor (Ghost GhostD) levelData
     ]
 
-actorTargetDst :: Coords -> [Actor] -> Actor -> Coords
-actorTargetDst inputPacDir _ (Actor Pacman _ dst _) = translateCoords dst inputPacDir
-actorTargetDst _ actors (Actor (Ghost _) _ _ _) = actorDst (actorWithId Pacman actors)
+ghostTargetDst :: Bool -> Bool -> Int -> Int -> [Actor] -> Actor -> Coords
+ghostTargetDst True _ levelW levelH _ a = scatterTile levelW levelH gId where Ghost gId = actorId a
+ghostTargetDst _ _ levelW levelH actors (Actor (Ghost GhostA) _ _ _) = actorDst (actorWithId Pacman actors)
+ghostTargetDst _ _ levelW levelH actors (Actor (Ghost GhostB) _ _ _) = translateCoords pacmanDst (5 * fst pacmanDir, 5 * snd pacmanDir) where
+    pacman = actorWithId Pacman actors
+    pacmanDst = actorDst pacman
+    pacmanDir = direcVecCoords (actorSrc pacman) pacmanDst
+ghostTargetDst _ _ levelW levelH actors (Actor (Ghost GhostC) _ _ _) = targetSquare where
+    targetSquare = translateCoords ghostADst doubleGhostAToInFrontOfPacman
+    doubleGhostAToInFrontOfPacman = (2 * fst ghostAToInFrontOfPacman, 2 * snd ghostAToInFrontOfPacman)
+    ghostAToInFrontOfPacman = translateCoords inFrontOfPacman (negateCoords ghostADst)
+    ghostADst = actorDst ghostA
+    inFrontOfPacman = translateCoords pacmanDst (2 * fst pacmanDir, 2 * snd pacmanDir)
+    pacmanDst = actorDst pacman
+    pacmanDir = direcVecCoords (actorSrc pacman) pacmanDst
+    pacman = actorWithId Pacman actors
+    ghostA = actorWithId (Ghost GhostA) actors
+ghostTargetDst _ _ levelW levelH actors (Actor (Ghost GhostD) _ _ _) | distance > 8 = actorDst (actorWithId Pacman actors)
+                                                   | otherwise = scatterTile levelW levelH GhostD where
+                                                   distance = sqrt (fromIntegral a ** 2 + fromIntegral b ** 2)
+                                                   (a, b) = translateCoords pacmanDst (negateCoords ghostDst)
+                                                   pacmanDst = actorDst (actorWithId Pacman actors)
+                                                   ghostDst = actorDst (actorWithId (Ghost GhostD) actors)
+
+scatterTile :: Int -> Int -> GhostId -> Coords
+scatterTile w h GhostA = (w - 5, h - 2)
+scatterTile _ h GhostB = (4, h - 2)
+scatterTile w _ GhostC = (w - 5, 1)
+scatterTile _ _ GhostD = (4, 1)
