@@ -21,7 +21,12 @@ pacmanMouthDirectionEffectUpdate actors dt prev = PacmanMouthDirectionEffect {
         pacmanMouthDirectionEffectParam = newParamValue
     } where
         pacman = actorWithId Pacman actors
-        pacmanDirecVec = direcVecCoords (actorSrc pacman) (actorDst pacman)
+        s = actorSrc pacman
+        d = actorDst pacman
+        (baseDirecX, baseDirecY) = direcVecCoords s d
+        --Get direction, accounting for wrapping around X axis
+        pacmanDirecVec | abs (fst d - fst s) > 1 = (negate baseDirecX `div` abs baseDirecX, baseDirecY)
+                       | otherwise = (baseDirecX, baseDirecY)
         prevTargetDirection = pacmanMouthDirectionEffectTargetDirection prev
         prevLastDirection = pacmanMouthDirectionEffectLastDirection prev
         prevParamValue = pacmanMouthDirectionEffectParam prev

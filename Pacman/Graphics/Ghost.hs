@@ -53,12 +53,12 @@ renderGhost :: [Actor] -> Effects -> [GameState] -> GhostId -> IO ()
 renderGhost actors effects states gId = do
     let
         ghostActor = actorWithId (Ghost gId) actors
-        srcCoords = actorSrc ghostActor
-        dstCoords = actorDst ghostActor
-        direcCoords = direcVecCoords srcCoords dstCoords
-        moveParam = actorMoveParam ghostActor
-        coords = translatePoint (scaleCoords moveParam direcCoords) (scaleCoords 1 srcCoords)
-        basePosition = scalePoint levelItemSize coords
+        --srcCoords = actorSrc ghostActor
+        --dstCoords = actorDst ghostActor
+        --direcCoords = direcVecCoords srcCoords dstCoords
+        --moveParam = actorMoveParam ghostActor
+        --coords = translatePoint (scaleCoords moveParam direcCoords) (scaleCoords 1 srcCoords)
+        basePosition = actorPositionPoint levelItemSize ghostActor
 
         activatingTranslation = activatingStatePositionTranslation states gId
         waitingTranslation = waitingStatePositionTranslation states gId

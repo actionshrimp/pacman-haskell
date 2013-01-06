@@ -1,8 +1,21 @@
-module Pacman.Graphics.Vertex (pointToVertex, translatePoint, scalePoint, circlePt) where
+module Pacman.Graphics.Vertex (pointToVertex, translatePoint, scalePoint, circlePt, actorPositionPoint) where
 
 import Control.Arrow
 
+import Pacman.Util.Coords
+
+import Pacman.Actor
+
 import Graphics.Rendering.OpenGL
+
+actorPositionPoint :: Float -> Actor -> (Float, Float)
+actorPositionPoint levelItemSize a = p where
+    srcCoords = actorSrc a
+    dstCoords = actorDst a
+    direcCoords = direcVecCoords srcCoords dstCoords
+    moveParam = actorMoveParam a
+    coords = translatePoint (scaleCoords moveParam direcCoords) (scaleCoords 1 srcCoords)
+    p = scalePoint levelItemSize coords
 
 pointToVertex :: (Float, Float) -> Vertex3 GLfloat
 pointToVertex (x, y) = Vertex3 (realToFrac x) (realToFrac y) 0  :: Vertex3 GLfloat

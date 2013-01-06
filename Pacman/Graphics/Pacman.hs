@@ -20,12 +20,7 @@ renderPacman world = do
     let 
         actors = worldActors world
         pacmanActor = actorWithId Pacman actors
-        srcCoords = actorSrc pacmanActor
-        dstCoords = actorDst pacmanActor
-        direcCoords = direcVecCoords srcCoords dstCoords
-        moveParam = actorMoveParam pacmanActor
-        coords = translatePoint (scaleCoords moveParam direcCoords) (scaleCoords 1 srcCoords)
-        (x, y) = scalePoint levelItemSize coords
+        (x, y) = actorPositionPoint levelItemSize pacmanActor
 
         effects = worldEffects world
         direcEffect = pacmanMouthDirectionEffect effects
